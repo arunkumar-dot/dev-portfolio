@@ -1,5 +1,5 @@
-import Header             from "@/components/Header";
-import Hero               from "@/components/Hero";
+import Navbar             from "@/components/Navbar";
+import HeroSection        from "@/components/HeroSection";
 import SpatialBentoGallery from "@/components/SpatialBentoGallery";
 import Skills             from "@/components/Skills";
 import Contact            from "@/components/Contact";
@@ -7,8 +7,8 @@ import Contact            from "@/components/Contact";
 export default function Home() {
   return (
     <main>
-      <Header />
-      <Hero />
+      <Navbar />
+      <HeroSection />
       <SpatialBentoGallery />
       <Skills />
       <Contact />
