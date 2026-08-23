@@ -5,12 +5,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { useSimulation } from '@/components/SimulationModeProvider';
-
-// ─── Color Tokens ─────────────────────────────────────────────────────────────
-const COLOR_STEEL_CYAN = new THREE.Color('#00f5d4');
-const COLOR_DEEP_COBALT = new THREE.Color('#4facfe');
-const COLOR_AMBER       = new THREE.Color('#f59e0b');
-const COLOR_VIOLET      = new THREE.Color('#818cf8');
+import { useTheme } from '@/context/ThemeContext';
 
 // ─── Particle Shader GLSL ─────────────────────────────────────────────────────
 
@@ -87,6 +82,9 @@ void main() {
 
 const PARTICLE_FRAG = /* glsl */ `
 uniform float uIntensity;
+uniform vec3 uColorPrimary;
+uniform vec3 uColorSecondary;
+
 varying float vAlpha;
 varying float vColorMix;
 
@@ -101,12 +99,9 @@ void main() {
   // Hard clamp to ensure background never overwhelms foreground typography
   alpha = clamp(alpha, 0.0, 0.42);
 
-  // Minimalist palette: Steel-Cyan (#00F5D4) to Deep Cobalt (#4FACFE)
-  vec3 steelCyan  = vec3(0.0, 0.961, 0.831);
-  vec3 deepCobalt = vec3(0.310, 0.671, 0.996);
+  // Dynamic Theme Colors
   vec3 amberGold  = vec3(0.961, 0.620, 0.043);
-
-  vec3 baseColor  = mix(deepCobalt, steelCyan, vColorMix);
+  vec3 baseColor  = mix(uColorSecondary, uColorPrimary, vColorMix);
   vec3 finalColor = mix(baseColor, amberGold, uIntensity);
 
   gl_FragColor = vec4(finalColor, alpha);
@@ -119,13 +114,16 @@ function GlobalParticleField({
   scrollRef,
   mouseRef,
   intensRef,
+  primaryColor,
+  secondaryColor,
 }: {
   scrollRef: React.RefObject<number>;
   mouseRef: React.RefObject<THREE.Vector2>;
   intensRef: React.RefObject<number>;
+  primaryColor: string;
+  secondaryColor: string;
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
-  const { viewport } = useThree();
 
   const COUNT = 8500;
 
@@ -151,7 +149,7 @@ function GlobalParticleField({
       basePos[i * 3 + 2] = z;
 
       seeds[i] = Math.random();
-      // Gradient distribution favoring steel-cyan towards top/center
+      // Gradient distribution favoring primary color towards top/center
       colorMix[i] = Math.min(Math.max((x / 16) * 0.5 + 0.5 + (Math.random() - 0.5) * 0.3, 0.0), 1.0);
     }
 
@@ -167,10 +165,20 @@ function GlobalParticleField({
       uMouse:          { value: new THREE.Vector2(9999, 9999) },
       uDpr:            { value: typeof window !== 'undefined' ? window.devicePixelRatio : 1 },
       uFocalPoint:     { value: new THREE.Vector3(0.0, -3.8, -1.2) },
+      uColorPrimary:   { value: new THREE.Color(primaryColor) },
+      uColorSecondary: { value: new THREE.Color(secondaryColor) },
     };
 
     return [geo, u] as const;
   }, []);
+
+  // Update theme colors when changed
+  useEffect(() => {
+    if (matRef.current) {
+      matRef.current.uniforms.uColorPrimary.value.set(primaryColor);
+      matRef.current.uniforms.uColorSecondary.value.set(secondaryColor);
+    }
+  }, [primaryColor, secondaryColor]);
 
   useFrame(({ clock }) => {
     if (!matRef.current) return;
@@ -231,11 +239,15 @@ function FloatingShard({
   mouseRef,
   intensRef,
   scrollRef,
+  primaryColor,
+  secondaryColor,
 }: {
   cfg: ShardCfg;
   mouseRef: React.RefObject<THREE.Vector2>;
   intensRef: React.RefObject<number>;
   scrollRef: React.RefObject<number>;
+  primaryColor: string;
+  secondaryColor: string;
 }) {
   const groupRef = useRef<THREE.Group>(null!);
   const vel = useRef(new THREE.Vector3());
@@ -299,8 +311,8 @@ function FloatingShard({
 
       {cfg.glass ? (
         <meshPhysicalMaterial
-          color={COLOR_STEEL_CYAN}
-          emissive={COLOR_DEEP_COBALT}
+          color={primaryColor}
+          emissive={secondaryColor}
           emissiveIntensity={0.25}
           roughness={0.08}
           metalness={0.05}
@@ -312,8 +324,8 @@ function FloatingShard({
         />
       ) : (
         <meshStandardMaterial
-          color={COLOR_DEEP_COBALT}
-          emissive={COLOR_STEEL_CYAN}
+          color={secondaryColor}
+          emissive={primaryColor}
           emissiveIntensity={0.3}
           roughness={0.25}
           metalness={0.15}
@@ -328,23 +340,31 @@ function FloatingShard({
 
 // ─── Dynamic Lighting ─────────────────────────────────────────────────────────
 
-function SceneLights({ intensRef }: { intensRef: React.RefObject<number> }) {
-  const cyanLight  = useRef<THREE.PointLight>(null!);
-  const amberLight = useRef<THREE.PointLight>(null!);
+function SceneLights({
+  intensRef,
+  primaryColor,
+  secondaryColor,
+}: {
+  intensRef: React.RefObject<number>;
+  primaryColor: string;
+  secondaryColor: string;
+}) {
+  const primaryLight = useRef<THREE.PointLight>(null!);
+  const amberLight   = useRef<THREE.PointLight>(null!);
 
   useFrame(() => {
     const iv = intensRef.current ?? 0;
-    if (cyanLight.current)  cyanLight.current.intensity  = 0.95 - iv * 0.45;
-    if (amberLight.current) amberLight.current.intensity = iv * 1.6;
+    if (primaryLight.current) primaryLight.current.intensity = 0.95 - iv * 0.45;
+    if (amberLight.current)   amberLight.current.intensity   = iv * 1.6;
   });
 
   return (
     <>
       <ambientLight intensity={0.3} />
-      <pointLight ref={cyanLight}  position={[ 8,  5, 5]} color="#00f5d4" intensity={0.95} />
-      <pointLight position={[-8, -4, 4]} color="#4facfe" intensity={0.65} />
-      <pointLight position={[ 0,  6, 3]} color="#818cf8" intensity={0.45} />
-      <pointLight ref={amberLight} position={[ 0,  0, 6]} color="#f59e0b" intensity={0} />
+      <pointLight ref={primaryLight} position={[8, 5, 5]} color={primaryColor} intensity={0.95} />
+      <pointLight position={[-8, -4, 4]} color={secondaryColor} intensity={0.65} />
+      <pointLight position={[0, 6, 3]} color="#818cf8" intensity={0.45} />
+      <pointLight ref={amberLight} position={[0, 0, 6]} color="#f59e0b" intensity={0} />
     </>
   );
 }
@@ -356,7 +376,6 @@ function CameraController({ scrollRef }: { scrollRef: React.RefObject<number> })
 
   useFrame(() => {
     const sp = scrollRef.current ?? 0;
-    // Subtle camera drift and rotation along scroll
     camera.position.y = THREE.MathUtils.lerp(camera.position.y, -sp * 2.5, 0.05);
     camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, sp * 0.12, 0.05);
   });
@@ -368,6 +387,7 @@ function CameraController({ scrollRef }: { scrollRef: React.RefObject<number> })
 
 function GlobalBackgroundScene() {
   const { intensitySpring } = useSimulation();
+  const { theme } = useTheme();
 
   const intensRef = useRef(0);
   useEffect(() => {
@@ -380,89 +400,88 @@ function GlobalBackgroundScene() {
   const scrollRef = useRef(0);
   useEffect(() => {
     const handleScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? window.scrollY / max : 0;
-      scrollRef.current = Math.min(Math.max(progress, 0), 1);
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      scrollRef.current = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Global normalized mouse coordinates [-10, 10]
+  // Cursor in 3D world coords
   const mouseRef = useRef(new THREE.Vector2(9999, 9999));
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
+    const handleMouseMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth) * 2 - 1;
       const ny = -(e.clientY / window.innerHeight) * 2 + 1;
-      // Project roughly into 3D world space at z=0 plane
-      mouseRef.current.set(nx * 11, ny * 7);
+      mouseRef.current.set(nx * 14, ny * 8);
     };
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    return () => window.removeEventListener('pointermove', handlePointerMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const shardConfigs = useMemo(() => buildShardConfigs(28), []);
+  // Floating shard configurations
+  const shards = useMemo(() => buildShardConfigs(36), []);
 
   return (
     <>
       <CameraController scrollRef={scrollRef} />
-      <SceneLights intensRef={intensRef} />
+      <SceneLights
+        intensRef={intensRef}
+        primaryColor={theme.primary}
+        secondaryColor={theme.secondary}
+      />
 
       <GlobalParticleField
         scrollRef={scrollRef}
         mouseRef={mouseRef}
         intensRef={intensRef}
+        primaryColor={theme.primary}
+        secondaryColor={theme.secondary}
       />
 
-      {shardConfigs.map((cfg) => (
+      {shards.map((cfg) => (
         <FloatingShard
           key={cfg.id}
           cfg={cfg}
           mouseRef={mouseRef}
           intensRef={intensRef}
           scrollRef={scrollRef}
+          primaryColor={theme.primary}
+          secondaryColor={theme.secondary}
         />
       ))}
+
+      <EffectComposer multisampling={0}>
+        <Bloom
+          luminanceThreshold={0.4}
+          luminanceSmoothing={0.7}
+          intensity={0.45}
+          mipmapBlur
+        />
+      </EffectComposer>
     </>
   );
 }
 
-// ─── Postprocessing Bloom ─────────────────────────────────────────────────────
-
-function BloomLayer() {
-  const { intensity } = useSimulation();
-  return (
-    <EffectComposer>
-      <Bloom
-        luminanceThreshold={0.18}
-        luminanceSmoothing={0.7}
-        intensity={0.35 + intensity * 1.4}
-        mipmapBlur
-      />
-    </EffectComposer>
-  );
-}
-
-// ─── Root Exported Canvas ─────────────────────────────────────────────────────
+// ─── Global Background Canvas Export ──────────────────────────────────────────
 
 export default function GlobalBackgroundCanvas() {
   return (
     <div className="global-canvas-container" aria-hidden="true">
       <Canvas
-        camera={{ position: [0, 0, 9], fov: 62 }}
-        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 8.5], fov: 50 }}
         gl={{
           antialias: true,
           alpha: true,
           powerPreference: 'high-performance',
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.05,
+          stencil: false,
+          depth: true,
         }}
-        style={{ pointerEvents: 'none', background: 'transparent' }}
+        dpr={[1, 1.75]}
+        style={{ pointerEvents: 'none' }}
       >
         <GlobalBackgroundScene />
-        <BloomLayer />
       </Canvas>
     </div>
   );

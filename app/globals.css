@@ -30,7 +30,8 @@
 
 html {
   scroll-behavior: smooth;
-  background: #06080d;
+  background: var(--bg, #06080d);
+  transition: background-color 0.3s ease;
 }
 
 body {
@@ -153,6 +154,195 @@ body {
 }
 .mode-toggle--stress .mode-indicator { background: var(--amber); }
 
+/* Header Controls */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ─── Theme Switcher Dropdown ────────────────────────────────────────────── */
+.theme-switcher-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.theme-switcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 18, 28, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px 12px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.theme-switcher-btn:hover,
+.theme-switcher-btn--open {
+  border-color: var(--cyan);
+  background: rgba(0, 245, 212, 0.06);
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.15);
+  color: #fff;
+}
+
+.theme-dot-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.theme-current-name {
+  white-space: nowrap;
+}
+
+.theme-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+}
+
+.theme-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  max-height: 480px;
+  background: rgba(10, 13, 20, 0.95);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 245, 212, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 120;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px 8px;
+  border-bottom: 1px solid var(--border-muted);
+  margin-bottom: 4px;
+}
+
+.theme-menu-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.theme-menu-count {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--cyan);
+  background: rgba(0, 245, 212, 0.08);
+  padding: 1px 6px;
+  border-radius: 100px;
+  border: 1px solid rgba(0, 245, 212, 0.2);
+}
+
+.theme-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.theme-options-list::-webkit-scrollbar {
+  width: 4px;
+}
+.theme-options-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+}
+.theme-option:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.theme-option--active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--active-border, var(--border));
+}
+
+.theme-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.theme-swatch-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.theme-option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-option-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-option-hex {
+  font-family: var(--mono);
+  font-size: 9px;
+  opacity: 0.8;
+}
+
+.theme-check-icon {
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
 /* Status dot */
 .header-status {
   display: flex;
@@ -161,7 +351,8 @@ body {
   flex-shrink: 0;
 }
 .status-dot {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
 }
 .status-dot--normal {

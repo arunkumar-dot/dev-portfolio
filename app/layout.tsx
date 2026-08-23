@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { SimulationModeProvider } from "@/components/SimulationModeProvider";
 import ClientBackground from "@/components/ClientBackground";
 
@@ -42,10 +43,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col relative">
-        <SimulationModeProvider>
-          <ClientBackground />
-          {children}
-        </SimulationModeProvider>
+        <ThemeProvider>
+          <SimulationModeProvider>
+            <ClientBackground />
+            {children}
+          </SimulationModeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
