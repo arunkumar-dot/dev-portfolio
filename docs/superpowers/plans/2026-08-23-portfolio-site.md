@@ -2,23 +2,24 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a single-page interactive developer portfolio (Next.js 15 + React 19 + TypeScript + Tailwind + @react-three/fiber) with a custom GLSL curl-noise GPU particle field, a Normal/600-RPM simulation toggle, 5 bento-grid case-study cards with diff tabs, and a terminal contact section with live GitHub data.
+**Goal:** Build a single-page interactive developer portfolio (Next.js 15 + React 19 + TypeScript + Tailwind + @react-three/fiber) with a curl-noise GPU particle field, a WebGL throughput ribbon, a Normal/600-RPM simulation toggle, a typewriter hero rotator, and a 4-module spatial bento gallery of glass tiles with 3D cursor-follow tilt.
 
-**Architecture:** A `SimulationModeProvider` React context holds the single `intensity` value (0→1) that drives the particle shader uniforms, bloom strength, and UI accent color together. All resume content lives in a typed `lib/content.ts` data module — no CMS, no placeholders. The only runtime network call is a client-side GitHub REST API fetch in the contact section, with a static fallback.
+**Architecture:** A `SimulationModeProvider` React context holds the single `intensity` value (0→1) that drives the particle shader, the ribbon shader, and bloom together. A shared `usePointerNDC` hook centralizes mouse-tracking for both WebGL meshes. All resume content lives in a typed `lib/content.ts` data module — no CMS, no placeholders. The only runtime network call is a client-side GitHub REST API fetch in the contact section, with a static fallback.
 
 **Tech Stack:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, @react-three/fiber, @react-three/drei, @react-three/postprocessing, framer-motion.
 
-**Spec:** [docs/superpowers/specs/2026-08-23-portfolio-site-design.md](../specs/2026-08-23-portfolio-site-design.md)
+**Spec:** [docs/superpowers/specs/2026-08-23-portfolio-site-design.md](../specs/2026-08-23-portfolio-site-design.md) (including the 2026-08-23 amendment)
 
 ## Global Constraints
 
 - Real, runnable project — verified via `npm run dev` in an actual browser, not just type-checked.
-- No placeholder/lorem-ipsum copy anywhere — all content comes from the resume or the GitHub API.
+- No placeholder/lorem-ipsum copy anywhere — content comes from the resume, or is clearly-marked illustrative reconstruction (diff snippets, locale translations) consistent with the spec.
 - No unit test framework (spec explicitly puts this out of scope) — each task is verified by build success + direct browser/visual check instead of automated tests.
-- Particle count adaptive: ~25k desktop, ~8k mobile/`prefers-reduced-motion`; reduced-motion also disables curl-noise turbulence.
+- Particle count adaptive: ~25k desktop, ~8k mobile/`prefers-reduced-motion`; reduced-motion also disables curl-noise turbulence (both `ParticleField` and `ThroughputRibbon`).
 - WebGL-unavailable and GitHub-API-failure paths must degrade gracefully, never blank the page.
+- Tile rendering is CSS 3D tilt + cursor light (`GlassTile`), not per-card WebGL glass — confirmed decision, do not substitute `MeshTransmissionMaterial`.
 - GitHub handle: `arunkumar-dot`. Contact email: `arunkulkarni2000@gmail.com`.
-- Case studies (5, in this order, all WEX Health/industry work, ranked above the Projects section): XSS remediation filter, EF Core DbContext concurrency fix, five-level config resolution, JMeter load test/SLA regression, multi-tenant isolation & typed-exception handling.
+- The bento gallery has exactly 4 modules (Claims Web API, Consumer Claims Micro-Frontend, Enterprise Security, HabitFlow) — there is no separate standalone Projects section.
 
 ---
 
@@ -30,29 +31,32 @@ app/
   page.tsx                 — assembles all sections
   globals.css               — Tailwind directives + base terminal/console theme
 lib/
-  content.ts                — typed resume content: metrics, case studies (incl. diff lines), skills, projects, contact
+  content.ts                — typed resume content: metrics, hero phrases, 4 bento modules, skills, contact
   github.ts                  — client-side GitHub REST API fetch helper
   useReducedMotion.ts         — hook wrapping prefers-reduced-motion media query
+  usePointerNDC.ts              — shared R3F pointer-tracking hook (NDC position + activity lerp)
 components/
   simulation/
     SimulationModeProvider.tsx — context: mode, intensity (animated)
     SimulationToggle.tsx        — header segmented toggle UI
   three/
-    shaders.ts                  — exported GLSL strings: curl noise, vertex, fragment
-    ParticleField.tsx            — R3F points mesh, uniforms, mouse interaction
-    Scene.tsx                     — Canvas wrapper, Bloom postprocessing, WebGL fallback
+    shaders.ts                  — exported GLSL: NOISE_GLSL (curl noise), particle VERTEX/FRAGMENT_SHADER
+    ribbonShaders.ts              — exported GLSL: ribbon RIBBON_VERTEX/FRAGMENT_SHADER (reuses NOISE_GLSL)
+    ParticleField.tsx              — R3F points mesh, uniforms, mouse interaction
+    ThroughputRibbon.tsx            — R3F displaced plane mesh, curl + ripple, mouse interaction
+    Scene.tsx                        — Canvas wrapper: ParticleField + ThroughputRibbon + Bloom + WebGL fallback
   layout/
-    Header.tsx                    — fixed nav + SimulationToggle
+    Header.tsx                        — fixed nav + SimulationToggle
   sections/
-    Hero.tsx                       — Scene + headline + MetricsStrip
-    MetricsStrip.tsx                — animated count-up metrics
-    DiffViewer.tsx                   — generic before/after colored-line renderer
-    CaseStudyCard.tsx                 — single bento card w/ Problem/Diff/Result tabs
-    CaseStudyBento.tsx                 — bento grid of 5 CaseStudyCards
-    Projects.tsx                        — HabitFlow project section
-    Skills.tsx                           — grouped skill tag grid
-    GithubCard.tsx                        — live GitHub profile/repo card
-    Contact.tsx                            — terminal panel, copy button, GithubCard
+    HeroTextRotator.tsx                 — typewriter base-text + rotating-phrase component
+    Hero.tsx                             — Scene + headline + HeroTextRotator + stress telemetry banner + MetricsStrip
+    MetricsStrip.tsx                      — animated count-up metrics
+    DiffViewer.tsx                         — generic before/after colored-line renderer
+    GlassTile.tsx                           — CSS 3D tilt + cursor-follow light wrapper
+    SpatialBento.tsx                         — 4-module bento gallery (Claims API, Microfrontend, Security, HabitFlow)
+    Skills.tsx                                — grouped skill tag grid
+    GithubCard.tsx                             — live GitHub profile/repo card
+    Contact.tsx                                — terminal panel, copy button, GithubCard
 ```
 
 ---
@@ -108,15 +112,16 @@ git commit -m "Scaffold Next.js project with 3D/animation dependencies"
 - Create: `lib/content.ts`
 
 **Interfaces:**
-- Produces: `metrics: Metric[]`, `caseStudies: CaseStudy[]`, `skillGroups: SkillGroup[]`, `project: ProjectInfo`, `contact: ContactInfo` — all typed exports consumed by later section components.
+- Produces: `metrics: Metric[]`, `heroBaseText: string`, `heroPhrases: string[]`, `claimsApiModule: ClaimsApiModule`, `microfrontendModule: MicrofrontendModule`, `securityModule: SecurityModule`, `habitflowModule: HabitflowModule`, `skillGroups: SkillGroup[]`, `contact: ContactInfo` — all typed exports consumed by later section components. `DiffLine` is consumed by `DiffViewer` (Task 13) and `securityModule.diff`.
 
-Diff snippets below are illustrative reconstructions written for portfolio presentation (the underlying employer codebase is proprietary and not reproduced) — they represent the described technical work, not literal copied source. A one-line comment at the top of the file states this.
+Diff snippets and locale translations below are illustrative reconstructions written for portfolio presentation (the underlying employer codebase and the exact shipped locale copy are not reproduced) — a comment at the top of the file states this.
 
 - [ ] **Step 1: Write `lib/content.ts`**
 
 ```typescript
-// Diff snippets are illustrative reconstructions of the described work,
-// written for this portfolio — not reproductions of proprietary source.
+// Diff snippets and locale translations are illustrative reconstructions
+// written for this portfolio — not reproductions of proprietary source
+// or literal shipped copy.
 
 export interface Metric {
   label: string;
@@ -128,26 +133,60 @@ export interface DiffLine {
   text: string;
 }
 
-export interface CaseStudy {
-  id: string;
+export interface ConfigLevel {
+  scope: string;
+  description: string;
+}
+
+export interface JmeterStats {
+  users: number;
+  rpm: number;
+  samples: number;
+  errorRate: string;
+  p95: string;
+  p99: string;
+}
+
+export interface ClaimsApiModule {
   title: string;
   tagline: string;
-  problem: string;
+  configHierarchy: ConfigLevel[];
+  shardingSteps: string[];
+  jmeter: JmeterStats;
+}
+
+export interface LocaleEntry {
+  code: string;
+  label: string;
+  directDeposit: string;
+  checkByMail: string;
+  continueLabel: string;
+}
+
+export interface MicrofrontendModule {
+  title: string;
+  tagline: string;
+  locales: LocaleEntry[];
+}
+
+export interface SecurityModule {
+  title: string;
+  tagline: string;
   diffTitle: string;
   diff: DiffLine[];
-  result: string;
+}
+
+export interface HabitflowModule {
+  title: string;
+  tagline: string;
+  description: string;
+  url: string;
+  stack: string[];
 }
 
 export interface SkillGroup {
   category: string;
   items: string[];
-}
-
-export interface ProjectInfo {
-  name: string;
-  description: string;
-  url: string;
-  stack: string[];
 }
 
 export interface ContactInfo {
@@ -162,111 +201,76 @@ export const metrics: Metric[] = [
   { label: "Locales shipped", value: "11" },
 ];
 
-export const caseStudies: CaseStudy[] = [
-  {
-    id: "xss-remediation",
-    title: "XSS Remediation Filter",
-    tagline: "Critical pen-test finding, fixed across four legacy services",
-    problem:
-      "A third-party penetration test flagged a critical cross-site scripting finding spanning four legacy services, each serializing API responses independently with no centralized output encoding.",
-    diffTitle: "Response serialization path",
-    diff: [
-      { type: "context", text: "public IActionResult GetClaim(int id)" },
-      { type: "context", text: "{" },
-      { type: "remove", text: "    var json = JsonSerializer.Serialize(claim);" },
-      { type: "remove", text: "    return Content(json, \"application/json\");" },
-      { type: "add", text: "    var json = _htmlSafeSerializer.Serialize(claim);" },
-      { type: "add", text: "    return _responseCaptureFilter.Wrap(Content(json, \"application/json\"));" },
-      { type: "context", text: "}" },
-    ],
-    result:
-      "Built a custom JSON serialization layer with HTML escaping, a response-capture filter, and pipeline hooks, consolidated into one shared library across all four services, shipped behind a feature flag for staged rollout and instant rollback.",
-  },
-  {
-    id: "ef-core-concurrency",
-    title: "EF Core Concurrency Fix",
-    tagline: "Diagnosed DbContext thread-safety failures under parallel execution",
-    problem:
-      "Parallel eligibility checks sharing a single EF Core DbContext caused intermittent, hard-to-reproduce query corruption under load.",
-    diffTitle: "Data access path",
-    diff: [
-      { type: "context", text: "var results = await Task.WhenAll(" },
-      { type: "remove", text: "    _repo.GetPlanAsync(planId, ctx)," },
-      { type: "remove", text: "    _repo.GetElectionsAsync(planId, ctx)" },
-      { type: "remove", text: ");" },
-      { type: "add", text: "    _repo.GetPlanAsync(planId)," },
-      { type: "add", text: "    _repo.GetElectionsAsync(planId)" },
-      { type: "add", text: ");" },
-      { type: "add", text: "// each repository call now resolves its own scoped DbContext" },
-      { type: "add", text: "// and reads are sequenced within that scope, not shared across Task.WhenAll" },
-    ],
-    result:
-      "Restructured the data-access path so reads sequence safely per scope instead of sharing a DbContext across concurrent tasks, eliminating the race entirely.",
-  },
-  {
-    id: "five-level-config",
-    title: "Five-Level Config Resolution",
-    tagline: "Per-setting merge semantics with legacy behavioral parity",
-    problem:
-      "Eligibility settings needed to resolve across five scopes — plan, employer, administrator, custodian, and global default — with per-setting merge semantics matching a legacy implementation bit-for-bit.",
-    diffTitle: "Settings resolution",
-    diff: [
-      { type: "remove", text: "var value = planSettings.TryGetValue(key, out var v)" },
-      { type: "remove", text: "    ? v" },
-      { type: "remove", text: "    : GlobalDefaults[key];" },
-      { type: "add", text: "var scopes = new[] { plan, employer, administrator, custodian, global };" },
-      { type: "add", text: "var value = scopes" },
-      { type: "add", text: "    .Select(s => s.Resolve(key))" },
-      { type: "add", text: "    .FirstOrDefault(r => r.IsSet)" },
-      { type: "add", text: "    ?? Setting.Default(key);" },
-    ],
-    result:
-      "Achieved behavioral parity with the legacy implementation, and scoped 4 of 7 eligibility checks out of the migration after establishing they were business-data reads that would have broken the service's bounded context.",
-  },
-  {
-    id: "jmeter-load-test",
-    title: "JMeter Load Test / SLA Regression",
-    tagline: "75 concurrent users, 600 RPM, root-caused to sequential iteration",
-    problem:
-      "A JMeter run at 75 concurrent users and 600 requests per minute measured p95 of 3.3s and p99 of 4.2s across 4,061 samples — 64% above the 2s QA SLA, though at 0% errors.",
-    diffTitle: "Per-plan eligibility loop",
-    diff: [
-      { type: "remove", text: "foreach (var plan in plans)" },
-      { type: "remove", text: "{" },
-      { type: "remove", text: "    var eligibility = await CheckEligibilityAsync(plan);" },
-      { type: "remove", text: "    results.Add(eligibility);" },
-      { type: "remove", text: "}" },
-      { type: "add", text: "var eligibilityTasks = plans.Select(CheckEligibilityAsync);" },
-      { type: "add", text: "var results = await Task.WhenAll(eligibilityTasks);" },
-      { type: "add", text: "// documented as the parallelisation path; caller-side batching shipped as an interim stopgap" },
-    ],
-    result:
-      "Root-caused the regression to sequential per-plan iteration and documented both a parallelisation path and a caller-side stopgap.",
-  },
-  {
-    id: "multi-tenant-isolation",
-    title: "Multi-Tenant Isolation & Typed Exceptions",
-    tagline: "Tenant-scoped queries with graceful per-plan degradation",
-    problem:
-      "Shared query paths risked cross-tenant data exposure, and a single missing upstream record for one plan could fail the entire response for a participant with multiple plans.",
-    diffTitle: "Tenant scoping & error handling",
-    diff: [
-      { type: "remove", text: "var plans = await _db.Plans.ToListAsync();" },
-      { type: "add", text: "var plans = await _db.Plans" },
-      { type: "add", text: "    .Where(p => p.TenantId == _tenantContext.TenantId)" },
-      { type: "add", text: "    .ToListAsync();" },
-      { type: "context", text: "" },
-      { type: "remove", text: "var upstream = await _upstream.GetRecordAsync(plan.Id);" },
-      { type: "add", text: "try {" },
-      { type: "add", text: "    var upstream = await _upstream.GetRecordAsync(plan.Id);" },
-      { type: "add", text: "} catch (UpstreamRecordNotFoundException) {" },
-      { type: "add", text: "    plan.MarkDegraded(); // only this plan is affected, not the whole response" },
-      { type: "add", text: "}" },
-    ],
-    result:
-      "Strengthened multi-tenant query scoping with regression tests covering tenant-isolation boundaries; a missing upstream record now degrades only the affected plan instead of failing the entire response.",
-  },
+export const heroBaseText =
+  "I'm Arun Kumar Kulkarni, a senior software engineer building ";
+
+export const heroPhrases: string[] = [
+  "production-grade backend APIs.",
+  "multi-tenant cloud systems.",
+  "resilient micro-frontends.",
+  "full-stack SaaS products.",
 ];
+
+export const claimsApiModule: ClaimsApiModule = {
+  title: "Claims Web API",
+  tagline: "Five-level config resolution, multi-tenant sharding, validated under load",
+  configHierarchy: [
+    { scope: "Plan", description: "Most specific override — checked first." },
+    { scope: "Employer", description: "Falls back here when no plan-level setting is defined." },
+    { scope: "Administrator", description: "Third-party administrator defaults for the employer group." },
+    { scope: "Custodian", description: "Custodian-wide defaults when no administrator setting applies." },
+    { scope: "Global Default", description: "Final fallback, applied when no more specific scope resolves." },
+  ],
+  shardingSteps: [
+    "Resolve tenant context from the authenticated request",
+    "Route the query to the tenant's database shard",
+    "Scope every repository call to that shard before execution",
+    "Propagate the same tenant context through receipt-download and claim-filing paths",
+  ],
+  jmeter: { users: 75, rpm: 600, samples: 4061, errorRate: "0%", p95: "3.3s", p99: "4.2s" },
+};
+
+export const microfrontendModule: MicrofrontendModule = {
+  title: "Consumer Claims Micro-Frontend",
+  tagline: "Direct deposit vs. check by mail, shipped in 11 locales",
+  locales: [
+    { code: "en-US", label: "English (US)", directDeposit: "Direct Deposit", checkByMail: "Check by Mail", continueLabel: "Continue" },
+    { code: "es-ES", label: "Español", directDeposit: "Depósito Directo", checkByMail: "Cheque por Correo", continueLabel: "Continuar" },
+    { code: "fr-FR", label: "Français", directDeposit: "Dépôt Direct", checkByMail: "Chèque par Courrier", continueLabel: "Continuer" },
+    { code: "de-DE", label: "Deutsch", directDeposit: "Direkteinzahlung", checkByMail: "Scheck per Post", continueLabel: "Weiter" },
+    { code: "pt-BR", label: "Português (BR)", directDeposit: "Depósito Direto", checkByMail: "Cheque pelo Correio", continueLabel: "Continuar" },
+    { code: "hi-IN", label: "हिन्दी", directDeposit: "सीधा जमा", checkByMail: "डाक द्वारा चेक", continueLabel: "जारी रखें" },
+    { code: "zh-CN", label: "中文（简体）", directDeposit: "直接存款", checkByMail: "邮寄支票", continueLabel: "继续" },
+    { code: "ja-JP", label: "日本語", directDeposit: "口座振込", checkByMail: "郵送小切手", continueLabel: "続ける" },
+    { code: "ko-KR", label: "한국어", directDeposit: "계좌 이체", checkByMail: "우편 수표", continueLabel: "계속" },
+    { code: "it-IT", label: "Italiano", directDeposit: "Deposito Diretto", checkByMail: "Assegno per Posta", continueLabel: "Continua" },
+    { code: "nl-NL", label: "Nederlands", directDeposit: "Directe Storting", checkByMail: "Cheque per Post", continueLabel: "Doorgaan" },
+  ],
+};
+
+export const securityModule: SecurityModule = {
+  title: "Enterprise Security",
+  tagline: "Critical XSS finding, remediated across four legacy services",
+  diffTitle: "Response serialization path",
+  diff: [
+    { type: "context", text: "public IActionResult GetClaim(int id)" },
+    { type: "context", text: "{" },
+    { type: "remove", text: "    var json = JsonSerializer.Serialize(claim);" },
+    { type: "remove", text: "    return Content(json, \"application/json\");" },
+    { type: "add", text: "    var json = _htmlSafeSerializer.Serialize(claim);" },
+    { type: "add", text: "    return _responseCaptureFilter.Wrap(Content(json, \"application/json\"));" },
+    { type: "context", text: "}" },
+  ],
+};
+
+export const habitflowModule: HabitflowModule = {
+  title: "HabitFlow",
+  tagline: "Full-stack SaaS habit tracker, live with real users",
+  description:
+    "Streak tracking, progress analytics, and real-time notifications — built and deployed end to end, live on a custom domain.",
+  url: "https://tryhabitflow.com",
+  stack: ["Next.js", "Convex", "Clerk", "Firebase", "Cloudflare", "Vercel"],
+};
 
 export const skillGroups: SkillGroup[] = [
   { category: "Languages", items: ["C#", "TypeScript", "JavaScript", "SQL (T-SQL)", "Python"] },
@@ -279,14 +283,6 @@ export const skillGroups: SkillGroup[] = [
   { category: "Cloud & Tooling", items: ["Microsoft Azure", "Azure DevOps", "Git", "Visual Studio", "OpenAPI/NSwag", "Splunk", "pnpm"] },
   { category: "Mobile", items: ["Xamarin.Forms", ".NET MAUI", "MVVM", "Firebase"] },
 ];
-
-export const project: ProjectInfo = {
-  name: "HabitFlow",
-  description:
-    "Full-stack SaaS habit tracker built and deployed end to end — streak tracking, progress analytics, and real-time notifications, live on a custom domain with real users.",
-  url: "https://tryhabitflow.com",
-  stack: ["Next.js", "Convex", "Clerk", "Firebase", "Cloudflare", "Vercel"],
-};
 
 export const contact: ContactInfo = {
   email: "arunkulkarni2000@gmail.com",
@@ -319,7 +315,7 @@ git commit -m "Add typed resume content data module"
 - Create: `lib/useReducedMotion.ts`
 
 **Interfaces:**
-- Produces: `SimulationModeProvider` (wraps `app/layout.tsx` children), `useSimulationMode(): { mode: "normal" | "stress"; intensity: number; setMode(mode): void }`, `useReducedMotion(): boolean`. Later tasks (`SimulationToggle`, `ParticleField`, `Scene`) consume `useSimulationMode`; `ParticleField` consumes `useReducedMotion`.
+- Produces: `SimulationModeProvider` (wraps `app/layout.tsx` children), `useSimulationMode(): { mode: "normal" | "stress"; intensity: number; setMode(mode): void }`, `useReducedMotion(): boolean`. Later tasks (`SimulationToggle`, `ParticleField`, `ThroughputRibbon`, `Scene`, `Hero`) consume `useSimulationMode`; `ParticleField`/`ThroughputRibbon` consume `useReducedMotion`.
 
 - [ ] **Step 1: Write `components/simulation/SimulationModeProvider.tsx`**
 
@@ -428,13 +424,13 @@ git commit -m "Add simulation mode context and reduced-motion hook"
 - Create: `components/three/shaders.ts`
 
 **Interfaces:**
-- Produces: exported string constants `VERTEX_SHADER`, `FRAGMENT_SHADER`, consumed by `ParticleField` (Task 5) as `<shaderMaterial vertexShader={VERTEX_SHADER} fragmentShader={FRAGMENT_SHADER} .../>`. Vertex shader expects uniforms `uTime: float`, `uIntensity: float` (0..1), `uMouse: vec2` (NDC-ish), `uMouseActive: float`, and an `aSeed: float` per-vertex attribute.
+- Produces: exported string constants `NOISE_GLSL` (curl-noise function, reused by `ThroughputRibbon` in Task 7), `VERTEX_SHADER`, `FRAGMENT_SHADER`, consumed by `ParticleField` (Task 6) as `<shaderMaterial vertexShader={VERTEX_SHADER} fragmentShader={FRAGMENT_SHADER} .../>`. Vertex shader expects uniforms `uTime: float`, `uIntensity: float` (0..1), `uMouse: vec2`, `uMouseActive: float`, and an `aSeed: float` per-vertex attribute.
 
 - [ ] **Step 1: Write `components/three/shaders.ts`**
 
 ```typescript
 // 3D simplex noise: Ian McEwan, Ashima Arts (MIT License), standard webgl-noise implementation.
-const NOISE_GLSL = `
+export const NOISE_GLSL = `
 vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
 
@@ -593,7 +589,7 @@ void main() {
 npx tsc --noEmit
 ```
 
-Expected: no errors referencing `components/three/shaders.ts` (this file only exports strings — GLSL syntax itself is validated visually once `ParticleField` renders in Task 5).
+Expected: no errors referencing `components/three/shaders.ts` (this file only exports strings — GLSL syntax itself is validated visually once `ParticleField` renders in Task 6).
 
 - [ ] **Step 3: Commit**
 
@@ -604,35 +600,100 @@ git commit -m "Add curl-noise GPU particle shaders"
 
 ---
 
-### Task 5: ParticleField component (GPU points + mouse interaction)
+### Task 5: Shared pointer-tracking hook
+
+**Files:**
+- Create: `lib/usePointerNDC.ts`
+
+**Interfaces:**
+- Produces: `usePointerNDC(): { pointer: React.RefObject<THREE.Vector2>; active: React.RefObject<number>; update(delta: number): void }`, consumed by both `ParticleField` (Task 6) and `ThroughputRibbon` (Task 7) so pointer-tracking logic (native `pointermove`/`pointerleave` listeners on the canvas, NDC conversion, activity lerp) exists in exactly one place. Must be called from inside a component rendered within an `@react-three/fiber` `<Canvas>` (it calls `useThree`).
+
+- [ ] **Step 1: Write `lib/usePointerNDC.ts`**
+
+```typescript
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useThree } from "@react-three/fiber";
+import * as THREE from "three";
+
+export function usePointerNDC() {
+  const { gl } = useThree();
+  const pointer = useRef(new THREE.Vector2(0, 0));
+  const active = useRef(0);
+  const targetActive = useRef(0);
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    function handleMove(e: PointerEvent) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.current.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+      targetActive.current = 1;
+    }
+    function handleLeave() {
+      targetActive.current = 0;
+    }
+    canvas.addEventListener("pointermove", handleMove);
+    canvas.addEventListener("pointerleave", handleLeave);
+    return () => {
+      canvas.removeEventListener("pointermove", handleMove);
+      canvas.removeEventListener("pointerleave", handleLeave);
+    };
+  }, [gl]);
+
+  function update(delta: number) {
+    active.current = THREE.MathUtils.lerp(active.current, targetActive.current, delta * 4);
+  }
+
+  return { pointer, active, update };
+}
+```
+
+- [ ] **Step 2: Verify it type-checks**
+
+```bash
+npx tsc --noEmit
+```
+
+Expected: no errors referencing `lib/usePointerNDC.ts`.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add lib/usePointerNDC.ts
+git commit -m "Add shared pointer-tracking hook for R3F meshes"
+```
+
+---
+
+### Task 6: ParticleField component (GPU points + mouse interaction)
 
 **Files:**
 - Create: `components/three/ParticleField.tsx`
 
 **Interfaces:**
-- Consumes: `useSimulationMode()` from Task 3 (`intensity: number`), `useReducedMotion()` from Task 3, `VERTEX_SHADER`/`FRAGMENT_SHADER` from Task 4.
-- Produces: `ParticleField` component, a `<points>` mesh meant to be rendered inside an `@react-three/fiber` `<Canvas>` — consumed by `Scene` in Task 6.
+- Consumes: `useSimulationMode()` from Task 3 (`intensity: number`), `useReducedMotion()` from Task 3, `VERTEX_SHADER`/`FRAGMENT_SHADER` from Task 4, `usePointerNDC()` from Task 5.
+- Produces: `ParticleField` component, a `<points>` mesh meant to be rendered inside an `@react-three/fiber` `<Canvas>` — consumed by `Scene` in Task 8.
 
 - [ ] **Step 1: Write `components/three/ParticleField.tsx`**
 
 ```tsx
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { VERTEX_SHADER, FRAGMENT_SHADER } from "./shaders";
 import { useSimulationMode } from "../simulation/SimulationModeProvider";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { usePointerNDC } from "@/lib/usePointerNDC";
 
 export function ParticleField() {
   const { intensity } = useSimulationMode();
   const reducedMotion = useReducedMotion();
-  const { gl } = useThree();
+  const { pointer, active, update } = usePointerNDC();
   const materialRef = useRef<THREE.ShaderMaterial>(null!);
-  const pointer = useRef(new THREE.Vector2(0, 0));
-  const pointerActive = useRef(0);
-  const targetActive = useRef(0);
 
   const particleCount = useMemo(() => {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -661,25 +722,6 @@ export function ParticleField() {
     []
   );
 
-  useEffect(() => {
-    const canvas = gl.domElement;
-    function handleMove(e: PointerEvent) {
-      const rect = canvas.getBoundingClientRect();
-      pointer.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.current.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-      targetActive.current = 1;
-    }
-    function handleLeave() {
-      targetActive.current = 0;
-    }
-    canvas.addEventListener("pointermove", handleMove);
-    canvas.addEventListener("pointerleave", handleLeave);
-    return () => {
-      canvas.removeEventListener("pointermove", handleMove);
-      canvas.removeEventListener("pointerleave", handleLeave);
-    };
-  }, [gl]);
-
   useFrame((state, delta) => {
     if (!materialRef.current) return;
     const u = materialRef.current.uniforms;
@@ -688,9 +730,9 @@ export function ParticleField() {
       u.uTime.value = state.clock.getElapsedTime();
     }
     u.uIntensity.value = intensity;
+    update(delta);
     u.uMouse.value.copy(pointer.current);
-    pointerActive.current = THREE.MathUtils.lerp(pointerActive.current, targetActive.current, delta * 4);
-    u.uMouseActive.value = pointerActive.current;
+    u.uMouseActive.value = active.current;
   });
 
   return (
@@ -719,7 +761,7 @@ export function ParticleField() {
 npx tsc --noEmit
 ```
 
-Expected: no errors referencing `components/three/ParticleField.tsx`. Full visual/behavioral verification happens in Task 6 once it's mounted inside a `Canvas`.
+Expected: no errors referencing `components/three/ParticleField.tsx`. Full visual/behavioral verification happens in Task 8 once it's mounted inside a `Canvas`.
 
 - [ ] **Step 3: Commit**
 
@@ -730,14 +772,162 @@ git commit -m "Add GPU particle field with curl-noise motion and mouse interacti
 
 ---
 
-### Task 6: Scene wrapper — Canvas, bloom postprocessing, WebGL fallback
+### Task 7: ThroughputRibbon component (WebGL fluid ribbon)
+
+**Files:**
+- Create: `components/three/ribbonShaders.ts`
+- Create: `components/three/ThroughputRibbon.tsx`
+
+**Interfaces:**
+- Consumes: `NOISE_GLSL` from Task 4, `useSimulationMode()`/`useReducedMotion()` from Task 3, `usePointerNDC()` from Task 5.
+- Produces: `RIBBON_VERTEX_SHADER`, `RIBBON_FRAGMENT_SHADER` (exported for reference/tuning), and `ThroughputRibbon` component — a displaced plane mesh meant to be rendered inside the same `<Canvas>` as `ParticleField` — consumed by `Scene` in Task 8.
+
+- [ ] **Step 1: Write `components/three/ribbonShaders.ts`**
+
+```typescript
+import { NOISE_GLSL } from "./shaders";
+
+export const RIBBON_VERTEX_SHADER = `
+uniform float uTime;
+uniform float uIntensity;
+uniform vec2 uMouse;
+uniform float uMouseActive;
+
+varying float vElevation;
+varying vec2 vUv;
+
+${NOISE_GLSL}
+
+void main() {
+  vUv = uv;
+
+  float speed = mix(0.2, 1.1, uIntensity);
+  float freq = mix(0.6, 1.8, uIntensity);
+  float ampCurl = mix(0.12, 0.5, uIntensity);
+
+  vec3 pos = position;
+
+  vec3 flow = curlNoise(vec3(pos.xy * freq, uTime * speed));
+  float elevation = flow.z * ampCurl;
+
+  float dist = distance(pos.xy, uMouse * 2.0);
+  float rippleSpeed = mix(2.0, 6.0, uIntensity);
+  float ripple = sin(dist * 8.0 - uTime * rippleSpeed) * exp(-dist * 2.5) * uMouseActive;
+  elevation += ripple * 0.4;
+
+  pos.z += elevation;
+  vElevation = elevation;
+
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+}
+`;
+
+export const RIBBON_FRAGMENT_SHADER = `
+uniform float uIntensity;
+varying float vElevation;
+varying vec2 vUv;
+
+void main() {
+  vec3 cyan = vec3(0.0, 0.96, 0.83);
+  vec3 amber = vec3(1.0, 0.55, 0.1);
+  vec3 base = mix(cyan, amber, uIntensity);
+
+  float glow = smoothstep(-0.3, 0.6, vElevation);
+  vec3 color = mix(base * 0.35, base, glow);
+
+  float edgeFade = smoothstep(0.0, 0.15, vUv.y) * smoothstep(1.0, 0.85, vUv.y);
+  float alpha = (0.25 + glow * 0.5) * edgeFade;
+
+  gl_FragColor = vec4(color, alpha);
+}
+`;
+```
+
+- [ ] **Step 2: Write `components/three/ThroughputRibbon.tsx`**
+
+```tsx
+"use client";
+
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { RIBBON_VERTEX_SHADER, RIBBON_FRAGMENT_SHADER } from "./ribbonShaders";
+import { useSimulationMode } from "../simulation/SimulationModeProvider";
+import { useReducedMotion } from "@/lib/useReducedMotion";
+import { usePointerNDC } from "@/lib/usePointerNDC";
+
+export function ThroughputRibbon() {
+  const { intensity } = useSimulationMode();
+  const reducedMotion = useReducedMotion();
+  const { pointer, active, update } = usePointerNDC();
+  const materialRef = useRef<THREE.ShaderMaterial>(null!);
+
+  const geometry = useMemo(() => new THREE.PlaneGeometry(6, 1.4, 180, 40), []);
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uIntensity: { value: 0 },
+      uMouse: { value: new THREE.Vector2(0, 0) },
+      uMouseActive: { value: 0 },
+    }),
+    []
+  );
+
+  useFrame((state, delta) => {
+    if (!materialRef.current) return;
+    const u = materialRef.current.uniforms;
+    if (!reducedMotion) {
+      u.uTime.value = state.clock.getElapsedTime();
+    }
+    u.uIntensity.value = intensity;
+    update(delta);
+    u.uMouse.value.copy(pointer.current);
+    u.uMouseActive.value = active.current;
+  });
+
+  return (
+    <mesh geometry={geometry} rotation={[-0.35, 0, 0]} position={[0, -0.6, -0.5]}>
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={RIBBON_VERTEX_SHADER}
+        fragmentShader={RIBBON_FRAGMENT_SHADER}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        side={THREE.DoubleSide}
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
+}
+```
+
+- [ ] **Step 3: Verify it type-checks**
+
+```bash
+npx tsc --noEmit
+```
+
+Expected: no errors referencing either new file. Full visual verification happens in Task 8 once mounted inside a `Canvas`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add components/three/ribbonShaders.ts components/three/ThroughputRibbon.tsx
+git commit -m "Add WebGL throughput ribbon with curl-noise and mouse ripple"
+```
+
+---
+
+### Task 8: Scene wrapper — Canvas, both meshes, bloom, WebGL fallback
 
 **Files:**
 - Create: `components/three/Scene.tsx`
 
 **Interfaces:**
-- Consumes: `ParticleField` (Task 5), `useSimulationMode()` (Task 3).
-- Produces: `Scene` component — an absolutely-positioned full-bleed background, consumed by `Hero` in Task 8.
+- Consumes: `ParticleField` (Task 6), `ThroughputRibbon` (Task 7), `useSimulationMode()` (Task 3).
+- Produces: `Scene` component — an absolutely-positioned full-bleed background, consumed by `Hero` in Task 11.
 
 - [ ] **Step 1: Write `components/three/Scene.tsx`**
 
@@ -748,6 +938,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { ParticleField } from "./ParticleField";
+import { ThroughputRibbon } from "./ThroughputRibbon";
 import { useSimulationMode } from "../simulation/SimulationModeProvider";
 
 function hasWebGL(): boolean {
@@ -802,6 +993,7 @@ export function Scene() {
       <Canvas camera={{ position: [0, 0, 4], fov: 55 }} dpr={[1, 1.5]}>
         <Suspense fallback={null}>
           <ParticleField />
+          <ThroughputRibbon />
           <BloomLayer />
         </Suspense>
       </Canvas>
@@ -823,12 +1015,12 @@ Expected: both succeed with no errors.
 
 ```bash
 git add components/three/Scene.tsx
-git commit -m "Add Scene wrapper with bloom postprocessing and WebGL fallback"
+git commit -m "Add Scene wrapper rendering particle field + ribbon with bloom and WebGL fallback"
 ```
 
 ---
 
-### Task 7: Header and simulation toggle UI
+### Task 9: Header and simulation toggle UI
 
 **Files:**
 - Create: `components/simulation/SimulationToggle.tsx`
@@ -836,7 +1028,7 @@ git commit -m "Add Scene wrapper with bloom postprocessing and WebGL fallback"
 
 **Interfaces:**
 - Consumes: `useSimulationMode()` (Task 3).
-- Produces: `Header` component, consumed by `app/page.tsx` in Task 14.
+- Produces: `Header` component, consumed by `app/page.tsx` in Task 17.
 
 - [ ] **Step 1: Write `components/simulation/SimulationToggle.tsx`**
 
@@ -907,7 +1099,7 @@ export function Header() {
 npx tsc --noEmit
 ```
 
-Expected: no errors referencing either new file. Full visual/click verification happens in Task 14 once wired into `page.tsx`.
+Expected: no errors referencing either new file. Full visual/click verification happens in Task 17 once wired into `page.tsx`.
 
 - [ ] **Step 4: Commit**
 
@@ -918,15 +1110,104 @@ git commit -m "Add header with normal/stress-test simulation toggle"
 
 ---
 
-### Task 8: Hero section with animated metrics strip
+### Task 10: Hero typewriter rotator
+
+**Files:**
+- Create: `components/sections/HeroTextRotator.tsx`
+
+**Interfaces:**
+- Produces: `HeroTextRotator` component (no props), consumed by `Hero` in Task 11.
+
+- [ ] **Step 1: Write `components/sections/HeroTextRotator.tsx`**
+
+```tsx
+"use client";
+
+import { useEffect, useState } from "react";
+
+const BASE_TEXT = "I'm Arun Kumar Kulkarni, a senior software engineer building ";
+const PHRASES = [
+  "production-grade backend APIs.",
+  "multi-tenant cloud systems.",
+  "resilient micro-frontends.",
+  "full-stack SaaS products.",
+];
+
+const TYPE_SPEED = 45;
+const DELETE_SPEED = 25;
+const HOLD_MS = 1600;
+
+export function HeroTextRotator() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = PHRASES[phraseIndex];
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (!deleting && displayed.length < current.length) {
+      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), TYPE_SPEED);
+    } else if (!deleting && displayed.length === current.length) {
+      timeout = setTimeout(() => setDeleting(true), HOLD_MS);
+    } else if (deleting && displayed.length > 0) {
+      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), DELETE_SPEED);
+    } else {
+      setDeleting(false);
+      setPhraseIndex((i) => (i + 1) % PHRASES.length);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayed, deleting, phraseIndex]);
+
+  const longestPhrase = PHRASES.reduce((a, b) => (b.length > a.length ? b : a), "");
+
+  return (
+    <p className="relative mt-4 text-base text-white/70 sm:text-lg">
+      <span className="invisible" aria-hidden="true">
+        {BASE_TEXT}
+        {longestPhrase}
+      </span>
+      <span className="absolute inset-0">
+        {BASE_TEXT}
+        <span className="text-cyan-300">{displayed}</span>
+        <span
+          className="ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] animate-pulse"
+          style={{ backgroundColor: "#00F5D4" }}
+          aria-hidden="true"
+        />
+      </span>
+    </p>
+  );
+}
+```
+
+- [ ] **Step 2: Verify it type-checks**
+
+```bash
+npx tsc --noEmit
+```
+
+Expected: no errors referencing `components/sections/HeroTextRotator.tsx`.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add components/sections/HeroTextRotator.tsx
+git commit -m "Add hero typewriter phrase rotator with CLS-safe layout"
+```
+
+---
+
+### Task 11: Hero section with typewriter, telemetry banner, and animated metrics
 
 **Files:**
 - Create: `components/sections/MetricsStrip.tsx`
 - Create: `components/sections/Hero.tsx`
 
 **Interfaces:**
-- Consumes: `Scene` (Task 6), `metrics: Metric[]` from `lib/content.ts` (Task 2).
-- Produces: `Hero` component, consumed by `app/page.tsx` in Task 14.
+- Consumes: `Scene` (Task 8), `HeroTextRotator` (Task 10), `useSimulationMode()` (Task 3), `metrics: Metric[]` from `lib/content.ts` (Task 2).
+- Produces: `Hero` component, consumed by `app/page.tsx` in Task 17.
 
 - [ ] **Step 1: Write `components/sections/MetricsStrip.tsx`**
 
@@ -1000,11 +1281,17 @@ export function MetricsStrip({ metrics }: { metrics: Metric[] }) {
 - [ ] **Step 2: Write `components/sections/Hero.tsx`**
 
 ```tsx
+"use client";
+
 import { Scene } from "../three/Scene";
 import { MetricsStrip } from "./MetricsStrip";
+import { HeroTextRotator } from "./HeroTextRotator";
 import { metrics } from "@/lib/content";
+import { useSimulationMode } from "../simulation/SimulationModeProvider";
 
 export function Hero() {
+  const { mode } = useSimulationMode();
+
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24 text-center">
       <Scene />
@@ -1015,10 +1302,12 @@ export function Hero() {
         <h1 className="mt-4 text-4xl font-bold text-white sm:text-6xl">
           Arun Kumar Kulkarni
         </h1>
-        <p className="mt-4 text-base text-white/60 sm:text-lg">
-          .NET · React · API Engineering · Cloud — shipping production systems
-          for a health, benefits, and claims platform.
-        </p>
+        <HeroTextRotator />
+        {mode === "stress" && (
+          <p className="mt-4 font-mono text-[11px] uppercase tracking-wider text-amber-300/90">
+            [SIMULATING CONCURRENCY: 75 VIRTUAL USERS | 600 REQ/MIN | 0.00% ERRORS]
+          </p>
+        )}
         <div className="mt-10">
           <MetricsStrip metrics={metrics} />
         </div>
@@ -1034,25 +1323,97 @@ export function Hero() {
 npx tsc --noEmit
 ```
 
-Expected: no errors referencing either new file. Full visual verification happens in Task 14.
+Expected: no errors referencing either new file. Full visual verification happens in Task 17.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add components/sections/MetricsStrip.tsx components/sections/Hero.tsx
-git commit -m "Add hero section with animated metrics strip"
+git commit -m "Add hero section with typewriter rotator, telemetry banner, and metrics strip"
 ```
 
 ---
 
-### Task 9: Diff viewer component
+### Task 12: GlassTile — CSS 3D tilt + cursor-follow light
+
+**Files:**
+- Create: `components/sections/GlassTile.tsx`
+
+**Interfaces:**
+- Produces: `GlassTile({ children, className })` component, consumed by `SpatialBento` in Task 14 — wraps each module's content in a tilting glass-look card.
+
+- [ ] **Step 1: Write `components/sections/GlassTile.tsx`**
+
+```tsx
+"use client";
+
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import type { MouseEvent, ReactNode } from "react";
+
+export function GlassTile({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+
+  const rotateX = useSpring(useTransform(mouseY, [0, 1], [8, -8]), { stiffness: 200, damping: 20 });
+  const rotateY = useSpring(useTransform(mouseX, [0, 1], [-8, 8]), { stiffness: 200, damping: 20 });
+  const lightBackground = useTransform([mouseX, mouseY], (values) => {
+    const [xv, yv] = values as number[];
+    return `radial-gradient(circle at ${xv * 100}% ${yv * 100}%, rgba(34,211,238,0.18), transparent 60%)`;
+  });
+
+  function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  }
+
+  return (
+    <motion.div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformPerspective: 800 }}
+      className={`group relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-md ${className}`}
+    >
+      <motion.div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: lightBackground }}
+      />
+      <div className="relative z-10 p-5">{children}</div>
+    </motion.div>
+  );
+}
+```
+
+- [ ] **Step 2: Verify it type-checks**
+
+```bash
+npx tsc --noEmit
+```
+
+Expected: no errors referencing `components/sections/GlassTile.tsx`.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add components/sections/GlassTile.tsx
+git commit -m "Add glass tile with CSS 3D tilt and cursor-follow light"
+```
+
+---
+
+### Task 13: Diff viewer component
 
 **Files:**
 - Create: `components/sections/DiffViewer.tsx`
 
 **Interfaces:**
 - Consumes: `DiffLine` type from `lib/content.ts` (Task 2).
-- Produces: `DiffViewer({ title, lines })` component, consumed by `CaseStudyCard` in Task 10.
+- Produces: `DiffViewer({ title, lines })` component, consumed by `SpatialBento`'s security module in Task 14.
 
 - [ ] **Step 1: Write `components/sections/DiffViewer.tsx`**
 
@@ -1097,168 +1458,196 @@ Expected: no errors referencing `components/sections/DiffViewer.tsx`.
 
 ```bash
 git add components/sections/DiffViewer.tsx
-git commit -m "Add diff viewer component for case study code tabs"
+git commit -m "Add diff viewer component for the security module"
 ```
 
 ---
 
-### Task 10: Case study cards and bento grid
+### Task 14: Spatial bento gallery (4 modules)
 
 **Files:**
-- Create: `components/sections/CaseStudyCard.tsx`
-- Create: `components/sections/CaseStudyBento.tsx`
+- Create: `components/sections/SpatialBento.tsx`
 
 **Interfaces:**
-- Consumes: `DiffViewer` (Task 9), `CaseStudy` type + `caseStudies: CaseStudy[]` from `lib/content.ts` (Task 2).
-- Produces: `CaseStudyBento` component, consumed by `app/page.tsx` in Task 14.
+- Consumes: `GlassTile` (Task 12), `DiffViewer` (Task 13), `claimsApiModule`, `microfrontendModule`, `securityModule`, `habitflowModule` and their types from `lib/content.ts` (Task 2).
+- Produces: `SpatialBento` component, consumed by `app/page.tsx` in Task 17. This is the sole case-study/projects section — there is no separate Projects component.
 
-- [ ] **Step 1: Write `components/sections/CaseStudyCard.tsx`**
+- [ ] **Step 1: Write `components/sections/SpatialBento.tsx`**
 
 ```tsx
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import type { CaseStudy } from "@/lib/content";
+import {
+  claimsApiModule,
+  microfrontendModule,
+  securityModule,
+  habitflowModule,
+  type ClaimsApiModule,
+  type MicrofrontendModule,
+  type SecurityModule,
+  type HabitflowModule,
+} from "@/lib/content";
+import { GlassTile } from "./GlassTile";
 import { DiffViewer } from "./DiffViewer";
 
-const TABS = ["Problem", "Diff", "Result"] as const;
-type Tab = (typeof TABS)[number];
-
-export function CaseStudyCard({ study, className = "" }: { study: CaseStudy; className?: string }) {
-  const [tab, setTab] = useState<Tab>("Problem");
-
+function ClaimsApiTile({ module }: { module: ClaimsApiModule }) {
   return (
-    <div className={`flex flex-col rounded-xl border border-white/10 bg-black/30 p-5 backdrop-blur-sm ${className}`}>
-      <h3 className="text-lg font-semibold text-white">{study.title}</h3>
-      <p className="mt-1 text-sm text-white/50">{study.tagline}</p>
+    <>
+      <h3 className="text-lg font-semibold text-white">{module.title}</h3>
+      <p className="mt-1 text-sm text-white/50">{module.tagline}</p>
 
-      <div className="mt-4 flex gap-1 border-b border-white/10 font-mono text-xs uppercase tracking-wider">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-3 py-2 transition-colors ${
-              tab === t ? "border-b-2 border-cyan-400 text-cyan-300" : "text-white/40 hover:text-white/70"
-            }`}
-          >
-            {t}
-          </button>
+      <div className="mt-4 space-y-1.5">
+        {module.configHierarchy.map((level, i) => (
+          <div key={level.scope} className="flex items-center gap-2 text-xs">
+            <span className="font-mono text-cyan-300/70">{i + 1}</span>
+            <span className="font-mono text-white/70">{level.scope}</span>
+            <span className="text-white/40">→ {level.description}</span>
+          </div>
         ))}
       </div>
 
-      <div className="mt-4 min-h-[9rem] flex-1">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={tab}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
-          >
-            {tab === "Problem" && <p className="text-sm text-white/70">{study.problem}</p>}
-            {tab === "Diff" && <DiffViewer title={study.diffTitle} lines={study.diff} />}
-            {tab === "Result" && <p className="text-sm text-white/70">{study.result}</p>}
-          </motion.div>
-        </AnimatePresence>
+      <div className="mt-4 space-y-1 rounded-md border border-white/10 bg-black/40 p-3 font-mono text-xs text-white/50">
+        {module.shardingSteps.map((step, i) => (
+          <div key={i}>
+            #{i + 1} {step}
+          </div>
+        ))}
       </div>
-    </div>
+
+      <div className="mt-4 flex flex-wrap gap-3 font-mono text-xs text-emerald-300/90">
+        <span className="rounded-full border border-emerald-400/30 px-2.5 py-1">
+          {module.jmeter.samples.toLocaleString()} samples
+        </span>
+        <span className="rounded-full border border-emerald-400/30 px-2.5 py-1">
+          {module.jmeter.errorRate} errors
+        </span>
+        <span className="rounded-full border border-emerald-400/30 px-2.5 py-1">
+          p95 {module.jmeter.p95} · p99 {module.jmeter.p99}
+        </span>
+      </div>
+    </>
   );
 }
-```
 
-- [ ] **Step 2: Write `components/sections/CaseStudyBento.tsx`**
+function MicrofrontendTile({ module }: { module: MicrofrontendModule }) {
+  const [localeIndex, setLocaleIndex] = useState(0);
+  const [method, setMethod] = useState<"directDeposit" | "checkByMail">("directDeposit");
+  const locale = module.locales[localeIndex];
 
-```tsx
-import { caseStudies } from "@/lib/content";
-import { CaseStudyCard } from "./CaseStudyCard";
+  return (
+    <>
+      <h3 className="text-lg font-semibold text-white">{module.title}</h3>
+      <p className="mt-1 text-sm text-white/50">{module.tagline}</p>
 
-export function CaseStudyBento() {
+      <select
+        value={localeIndex}
+        onChange={(e) => setLocaleIndex(Number(e.target.value))}
+        className="mt-4 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1.5 font-mono text-xs text-white/70"
+      >
+        {module.locales.map((l, i) => (
+          <option key={l.code} value={i}>
+            {l.code} — {l.label}
+          </option>
+        ))}
+      </select>
+
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={() => setMethod("directDeposit")}
+          className={`flex-1 rounded-md border px-3 py-2 text-sm ${
+            method === "directDeposit" ? "border-cyan-400/60 text-cyan-300" : "border-white/10 text-white/50"
+          }`}
+        >
+          {locale.directDeposit}
+        </button>
+        <button
+          onClick={() => setMethod("checkByMail")}
+          className={`flex-1 rounded-md border px-3 py-2 text-sm ${
+            method === "checkByMail" ? "border-cyan-400/60 text-cyan-300" : "border-white/10 text-white/50"
+          }`}
+        >
+          {locale.checkByMail}
+        </button>
+      </div>
+
+      <button className="mt-3 w-full rounded-md bg-cyan-400/90 px-3 py-2 text-sm font-medium text-black">
+        {locale.continueLabel}
+      </button>
+    </>
+  );
+}
+
+function SecurityTile({ module }: { module: SecurityModule }) {
+  return (
+    <>
+      <h3 className="text-lg font-semibold text-white">{module.title}</h3>
+      <p className="mt-1 text-sm text-white/50">{module.tagline}</p>
+      <div className="mt-4">
+        <DiffViewer title={module.diffTitle} lines={module.diff} />
+      </div>
+    </>
+  );
+}
+
+function HabitflowTile({ module }: { module: HabitflowModule }) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-lg font-semibold text-white">{module.title}</h3>
+          <p className="mt-1 text-sm text-white/50">{module.tagline}</p>
+        </div>
+        <span className="shrink-0 rounded-full border border-emerald-400/30 px-2.5 py-1 font-mono text-[11px] text-emerald-300">
+          LIVE
+        </span>
+      </div>
+      <p className="mt-3 text-sm text-white/70">{module.description}</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {module.stack.map((tech) => (
+          <span
+            key={tech}
+            className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-[11px] text-white/50"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+      <a
+        href={module.url}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-4 inline-block rounded-md bg-cyan-400/90 px-4 py-2 text-sm font-medium text-black"
+      >
+        Launch tryhabitflow.com →
+      </a>
+    </>
+  );
+}
+
+export function SpatialBento() {
   return (
     <section id="case-studies" className="mx-auto max-w-6xl px-6 py-24">
       <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300/80">
-        Case Studies
+        Engineering Deep-Dives
       </h2>
       <p className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-        Production fixes, from the WEX Health claims platform
+        Production systems, from the WEX Health claims platform
       </p>
 
       <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-6">
-        <CaseStudyCard study={caseStudies[0]} className="md:col-span-4" />
-        <CaseStudyCard study={caseStudies[1]} className="md:col-span-2" />
-        <CaseStudyCard study={caseStudies[2]} className="md:col-span-2" />
-        <CaseStudyCard study={caseStudies[3]} className="md:col-span-4" />
-        <CaseStudyCard study={caseStudies[4]} className="md:col-span-6" />
-      </div>
-    </section>
-  );
-}
-```
-
-- [ ] **Step 3: Verify it type-checks**
-
-```bash
-npx tsc --noEmit
-```
-
-Expected: no errors referencing either new file. Full tab-click verification happens in Task 14.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add components/sections/CaseStudyCard.tsx components/sections/CaseStudyBento.tsx
-git commit -m "Add case study bento grid with Problem/Diff/Result tabs"
-```
-
----
-
-### Task 11: Projects section (HabitFlow)
-
-**Files:**
-- Create: `components/sections/Projects.tsx`
-
-**Interfaces:**
-- Consumes: `project: ProjectInfo` from `lib/content.ts` (Task 2).
-- Produces: `Projects` component, consumed by `app/page.tsx` in Task 14, rendered below `CaseStudyBento` per the spec's industry-first ordering.
-
-- [ ] **Step 1: Write `components/sections/Projects.tsx`**
-
-```tsx
-import { project } from "@/lib/content";
-
-export function Projects() {
-  return (
-    <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
-      <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-cyan-300/80">
-        Projects
-      </h2>
-      <p className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-        Independent work
-      </p>
-
-      <div className="mt-8 rounded-xl border border-white/10 bg-black/30 p-6 backdrop-blur-sm">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-lg font-semibold text-white">{project.name}</h3>
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noreferrer"
-            className="font-mono text-xs uppercase tracking-wider text-cyan-300 hover:underline"
-          >
-            {project.url.replace("https://", "")} →
-          </a>
-        </div>
-        <p className="mt-3 text-sm text-white/70">{project.description}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {project.stack.map((tech) => (
-            <span
-              key={tech}
-              className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-[11px] text-white/50"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
+        <GlassTile className="md:col-span-4">
+          <ClaimsApiTile module={claimsApiModule} />
+        </GlassTile>
+        <GlassTile className="md:col-span-2">
+          <MicrofrontendTile module={microfrontendModule} />
+        </GlassTile>
+        <GlassTile className="md:col-span-3">
+          <SecurityTile module={securityModule} />
+        </GlassTile>
+        <GlassTile className="md:col-span-3">
+          <HabitflowTile module={habitflowModule} />
+        </GlassTile>
       </div>
     </section>
   );
@@ -1271,25 +1660,25 @@ export function Projects() {
 npx tsc --noEmit
 ```
 
-Expected: no errors referencing `components/sections/Projects.tsx`.
+Expected: no errors referencing `components/sections/SpatialBento.tsx`.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add components/sections/Projects.tsx
-git commit -m "Add HabitFlow projects section"
+git add components/sections/SpatialBento.tsx
+git commit -m "Add 4-module spatial bento gallery replacing case-study cards and Projects section"
 ```
 
 ---
 
-### Task 12: Skills section
+### Task 15: Skills section
 
 **Files:**
 - Create: `components/sections/Skills.tsx`
 
 **Interfaces:**
 - Consumes: `skillGroups: SkillGroup[]` from `lib/content.ts` (Task 2).
-- Produces: `Skills` component, consumed by `app/page.tsx` in Task 14.
+- Produces: `Skills` component, consumed by `app/page.tsx` in Task 17.
 
 - [ ] **Step 1: Write `components/sections/Skills.tsx`**
 
@@ -1343,7 +1732,7 @@ git commit -m "Add technical skills section"
 
 ---
 
-### Task 13: GitHub fetch helper, live GitHub card, and terminal contact section
+### Task 16: GitHub fetch helper, live GitHub card, and terminal contact section
 
 **Files:**
 - Create: `lib/github.ts`
@@ -1352,7 +1741,7 @@ git commit -m "Add technical skills section"
 
 **Interfaces:**
 - Consumes: `contact: ContactInfo` from `lib/content.ts` (Task 2).
-- Produces: `Contact` component, consumed by `app/page.tsx` in Task 14. `lib/github.ts` exports `fetchGithubProfile(username)` and `fetchGithubRepos(username, limit)`, each throwing on non-OK responses so `GithubCard` can catch and fall back.
+- Produces: `Contact` component, consumed by `app/page.tsx` in Task 17. `lib/github.ts` exports `fetchGithubProfile(username)` and `fetchGithubRepos(username, limit)`, each throwing on non-OK responses so `GithubCard` can catch and fall back.
 
 - [ ] **Step 1: Write `lib/github.ts`**
 
@@ -1557,7 +1946,7 @@ export function Contact() {
 npx tsc --noEmit
 ```
 
-Expected: no errors referencing any of the three new files. Full copy-button and live-data verification happens in Task 14.
+Expected: no errors referencing any of the three new files. Full copy-button and live-data verification happens in Task 17.
 
 - [ ] **Step 5: Commit**
 
@@ -1568,7 +1957,7 @@ git commit -m "Add live GitHub card and terminal contact section"
 
 ---
 
-### Task 14: Assemble root layout and page, final browser verification
+### Task 17: Assemble root layout and page, final browser verification
 
 **Files:**
 - Modify: `app/layout.tsx`
@@ -1576,7 +1965,7 @@ git commit -m "Add live GitHub card and terminal contact section"
 - Modify: `app/globals.css`
 
 **Interfaces:**
-- Consumes: `SimulationModeProvider` (Task 3), `Header` (Task 7), `Hero` (Task 8), `CaseStudyBento` (Task 10), `Projects` (Task 11), `Skills` (Task 12), `Contact` (Task 13).
+- Consumes: `SimulationModeProvider` (Task 3), `Header` (Task 9), `Hero` (Task 11), `SpatialBento` (Task 14), `Skills` (Task 15), `Contact` (Task 16).
 - Produces: the fully assembled site at `/`.
 
 - [ ] **Step 1: Write `app/layout.tsx`**
@@ -1612,8 +2001,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ```tsx
 import { Header } from "@/components/layout/Header";
 import { Hero } from "@/components/sections/Hero";
-import { CaseStudyBento } from "@/components/sections/CaseStudyBento";
-import { Projects } from "@/components/sections/Projects";
+import { SpatialBento } from "@/components/sections/SpatialBento";
 import { Skills } from "@/components/sections/Skills";
 import { Contact } from "@/components/sections/Contact";
 
@@ -1623,8 +2011,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
-        <CaseStudyBento />
-        <Projects />
+        <SpatialBento />
         <Skills />
         <Contact />
       </main>
@@ -1671,12 +2058,12 @@ Expected: both succeed with no errors or warnings about the new files.
 npm run dev
 ```
 
-Open `http://localhost:3000` in a browser and verify, per the spec's Testing section:
-- Hero renders with the particle field visible behind the headline and metrics strip (4+ yrs, 0%, 11 locales count up on load)
-- Moving the mouse over the hero visibly perturbs nearby particles
-- Clicking "600 RPM STRESS TEST" in the header speeds up particle motion, increases turbulence and bloom, and shifts particle color toward amber; clicking back to "NORMAL OPERATION" reverses it
-- All 5 case-study bento cards open their Problem/Diff/Result tabs and the diff tab renders colored +/- lines
-- The Projects section shows HabitFlow with a working link to tryhabitflow.com
+Open `http://localhost:3000` in a browser and verify, per the spec's Testing section and the amendment:
+- Hero renders with the particle field and the throughput ribbon both visible behind the headline
+- The base headline text is fixed, and the rotating phrase types and deletes in a loop with a pulsing cyan caret, without shifting any surrounding layout (badges/metrics stay put) as phrase length changes
+- Moving the mouse over the hero visibly perturbs nearby particles and ripples the ribbon
+- Clicking "600 RPM STRESS TEST" in the header speeds up particle motion and ribbon wave velocity, increases turbulence and bloom, shifts color toward amber, and reveals the `[SIMULATING CONCURRENCY: ...]` telemetry line; clicking back to "NORMAL OPERATION" reverses all of it
+- All 4 bento modules render with 3D tilt following the cursor and a cursor-tracked highlight: Claims Web API shows the 5-level hierarchy, sharding steps, and JMeter badge; the Micro-Frontend module's locale dropdown switches all 11 locales and the direct-deposit/check-by-mail toggle updates; the Security module's diff renders colored +/- lines; the HabitFlow module's launch link opens tryhabitflow.com
 - The Skills section renders all 9 category groups
 - The contact email copy button copies `arunkulkarni2000@gmail.com` to the clipboard and shows "copied"
 - The GitHub card loads live data for `arunkumar-dot` (or shows the graceful fallback link if the API call fails)
@@ -1687,5 +2074,5 @@ Stop the dev server once verified.
 
 ```bash
 git add app/layout.tsx app/page.tsx app/globals.css
-git commit -m "Assemble portfolio page from all sections"
+git commit -m "Assemble portfolio page with hero rotator, WebGL ribbon, and spatial bento gallery"
 ```
