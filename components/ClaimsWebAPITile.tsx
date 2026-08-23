@@ -14,14 +14,14 @@ export default function ClaimsWebAPITile({
       onClick={() => onOpenCaseStudy?.('claims')}
     >
       <div className="tile-header">
-        <span className="tile-tag">Altimetrik / WEX Health</span>
+        <span className="tile-tag">Health Benefits & Claims Platform</span>
         <h3 className="tile-title">Claims Web API</h3>
-        <p className="tile-subtitle">.NET 8 · EF Core · MediatR · Multi-tenant · SQL Server</p>
+        <p className="tile-subtitle">ASP.NET Core · C# · MediatR CQRS · SQL Server · Multi-Tenant</p>
       </div>
 
       {/* Five-level config hierarchy */}
       <div className="config-levels">
-        <div className="config-levels-label">5-Level Config Resolution</div>
+        <div className="config-levels-label">5-Level Config Resolution (Per-Setting Merge)</div>
         {CONFIG_MERGE_LEVELS.map((lv) => (
           <div key={lv.level} className="config-level-row">
             <span className="config-level-num" style={{ color: lv.color }}>
@@ -30,7 +30,7 @@ export default function ClaimsWebAPITile({
             <div
               className="config-level-bar"
               style={{
-                width: `${60 + lv.level * 8}%`,
+                width: `${55 + lv.level * 9}%`,
                 background: `linear-gradient(90deg, ${lv.color}33, ${lv.color}11)`,
                 borderLeft: `2px solid ${lv.color}`,
               }}
@@ -44,7 +44,7 @@ export default function ClaimsWebAPITile({
 
       {/* JMeter badge */}
       <div className="jmeter-badge">
-        <div className="jmeter-badge-title">JMeter Load Test @ 600 RPM</div>
+        <div className="jmeter-badge-title">JMeter Load Test @ 600 RPM (75 Users)</div>
         <div className="jmeter-stats">
           <div className="jmeter-stat">
             <span className="jmeter-stat-val text-cyan">{JMETER_STATS.samples.toLocaleString()}</span>
@@ -56,7 +56,7 @@ export default function ClaimsWebAPITile({
           </div>
           <div className="jmeter-stat">
             <span className="jmeter-stat-val text-amber">{JMETER_STATS.p95}</span>
-            <span className="jmeter-stat-key">p95</span>
+            <span className="jmeter-stat-key">p95 (vs 2s SLA)</span>
           </div>
           <div className="jmeter-stat">
             <span className="jmeter-stat-val text-amber">{JMETER_STATS.p99}</span>
@@ -64,7 +64,7 @@ export default function ClaimsWebAPITile({
           </div>
         </div>
         <div className="jmeter-badge-meta">
-          {JMETER_STATS.users} virtual users · 0.00% error rate
+          4,061 samples evaluated · 0% error rate · root-caused p95 latency regression
         </div>
       </div>
 

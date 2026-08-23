@@ -19,39 +19,39 @@ export default function FedExLogisticsTile({
         </div>
         <h3 className="tile-title">Courier & Logistics Platform</h3>
         <p className="tile-subtitle">
-          C# · .NET · Xamarin / MAUI · Offline-First SQLite · HTTPS REST APIs
+          C# · .NET · Xamarin / MAUI · MVVM · SQLite · REST APIs
         </p>
       </div>
 
-      {/* Offline sync & SQLite telemetry widget */}
+      {/* Offline persistence & API contract widget */}
       <div className="fedex-sync-card">
         <div className="fedex-sync-header">
           <span className="fedex-sync-dot" />
-          <span className="fedex-sync-title">Local-First Offline Resilience</span>
-          <span className="fedex-sync-tag">WAL Mode</span>
+          <span className="fedex-sync-title">Mobile Engineering & API Specs</span>
+          <span className="fedex-sync-tag">REST Specs</span>
         </div>
 
         <div className="fedex-metrics-row">
           <div className="fedex-metric-box">
-            <span className="fedex-metric-num text-cyan">0ms</span>
-            <span className="fedex-metric-lbl">Scan UI Delay</span>
+            <span className="fedex-metric-num text-cyan">2 Teams</span>
+            <span className="fedex-metric-lbl">Android & iOS Specs</span>
           </div>
           <div className="fedex-metric-box">
-            <span className="fedex-metric-num text-green">100%</span>
-            <span className="fedex-metric-lbl">Offline Retention</span>
+            <span className="fedex-metric-num text-green">MVVM</span>
+            <span className="fedex-metric-lbl">SQLite Persistence</span>
           </div>
           <div className="fedex-metric-box">
-            <span className="fedex-metric-num text-amber">-65%</span>
-            <span className="fedex-metric-lbl">Query Latency</span>
+            <span className="fedex-metric-num text-amber">Award</span>
+            <span className="fedex-metric-lbl">Panache 2022</span>
           </div>
         </div>
 
         <div className="fedex-pipeline-bar">
-          <span className="fedex-pipe-step">Barcode Scan</span>
+          <span className="fedex-pipe-step">Standardized API Spec</span>
           <span className="fedex-pipe-arrow">→</span>
-          <span className="fedex-pipe-step active">SQLite WAL</span>
+          <span className="fedex-pipe-step active">SQLite Local Cache</span>
           <span className="fedex-pipe-arrow">→</span>
-          <span className="fedex-pipe-step">HTTPS Sync</span>
+          <span className="fedex-pipe-step">Mobile Dispatch</span>
         </div>
       </div>
 

@@ -17,7 +17,6 @@ interface GitHubProfile {
 
 // Filter featured open-source repositories from github.com/arunkumar-dot
 const GH_FEATURED_IDS = [
-  'habitflow',
   'rag-document-assistant',
   'hn-scraper',
   'distributed-ledger',

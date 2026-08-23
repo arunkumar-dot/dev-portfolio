@@ -21,9 +21,9 @@ export default function HabitFlowTile({
       onClick={() => onOpenCaseStudy?.('habitflow')}
     >
       <div className="tile-header">
-        <span className="tile-tag">Side Project</span>
+        <span className="tile-tag">Live Production SaaS</span>
         <h3 className="tile-title">HabitFlow</h3>
-        <p className="tile-subtitle">Full-stack SaaS habit tracker</p>
+        <p className="tile-subtitle">Full-stack SaaS habit tracker at tryhabitflow.com</p>
       </div>
 
       {/* Product badge */}
@@ -31,8 +31,13 @@ export default function HabitFlowTile({
         <div className="hf-logo">
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
             <circle cx="20" cy="20" r="19" stroke="#22d3ee" strokeWidth="1.5" />
-            <path d="M12 20 C12 14 20 10 20 10 C20 10 28 14 28 20 C28 26 20 30 20 30 C20 30 12 26 12 20Z"
-              fill="none" stroke="#22d3ee" strokeWidth="1.5" strokeLinejoin="round" />
+            <path
+              d="M12 20 C12 14 20 10 20 10 C20 10 28 14 28 20 C28 26 20 30 20 30 C20 30 12 26 12 20Z"
+              fill="none"
+              stroke="#22d3ee"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
             <circle cx="20" cy="20" r="3" fill="#22d3ee" />
           </svg>
         </div>
@@ -46,7 +51,11 @@ export default function HabitFlowTile({
       {/* Stack chips */}
       <div className="hf-stack">
         {STACK.map((s) => (
-          <span key={s.label} className="hf-chip" style={{ color: s.color, borderColor: `${s.color}40` }}>
+          <span
+            key={s.label}
+            className="hf-chip"
+            style={{ color: s.color, borderColor: `${s.color}40` }}
+          >
             {s.label}
           </span>
         ))}
@@ -72,15 +81,6 @@ export default function HabitFlowTile({
             id="habitflow-launch"
           >
             Launch App ↗
-          </a>
-          <a
-            href="https://github.com/arunkumar-dot"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hf-github-btn"
-            id="habitflow-github"
-          >
-            GitHub ↗
           </a>
         </div>
       </div>

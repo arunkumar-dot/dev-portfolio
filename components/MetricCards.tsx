@@ -43,18 +43,18 @@ function AnimatedCounter({
 export default function MetricCards() {
   return (
     <div className="metrics-bento-row">
-      {/* Metric 1: 4+ Years */}
+      {/* Metric 1: 4 Years Experience */}
       <motion.div
         className="metric-card-pill"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.45, duration: 0.45, ease: 'easeOut' }}
       >
-        <AnimatedCounter target={4} suffix="+" />
+        <AnimatedCounter target={4} />
         <span className="metric-card-label">Years Production Stack</span>
       </motion.div>
 
-      {/* Metric 2: 0.00% Error SLA */}
+      {/* Metric 2: 0.00% Error Rate */}
       <motion.div
         className="metric-card-pill"
         initial={{ opacity: 0, y: 16 }}
@@ -62,7 +62,7 @@ export default function MetricCards() {
         transition={{ delay: 0.55, duration: 0.45, ease: 'easeOut' }}
       >
         <span className="metric-card-value text-emerald-400">0.00%</span>
-        <span className="metric-card-label">Error SLA (600 RPM)</span>
+        <span className="metric-card-label">Error Rate (600 RPM Load Test)</span>
       </motion.div>
 
       {/* Metric 3: 11 Locales */}

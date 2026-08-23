@@ -1,22 +1,66 @@
 // ─── Metrics ─────────────────────────────────────────────────────────────────
 
 export const METRICS = [
-  { label: "yrs production experience", value: 4, prefix: "", suffix: "+" },
-  { label: "load-test errors @ 600 RPM", value: 0, prefix: "", suffix: "%" },
+  { label: "yrs production experience", value: 4, prefix: "", suffix: "" },
+  { label: "load-test error rate @ 600 RPM", value: 0, prefix: "", suffix: "%" },
   { label: "locales shipped", value: 11, prefix: "", suffix: "" },
 ] as const;
 
-// ─── Skills ──────────────────────────────────────────────────────────────────
+// ─── Skills (Aligned 100% with Resume & Genuine Work) ────────────────────────
 
 export const SKILLS: Record<string, string[]> = {
-  Languages: ["C#", "TypeScript", "JavaScript", "SQL", "Python"],
-  Backend: [".NET 8", "ASP.NET Core", "Entity Framework Core", "REST APIs", "SignalR"],
-  Frontend: ["React 19", "Next.js", "Tailwind CSS", "Three.js", "Framer Motion"],
-  Architecture: ["Micro-frontends", "Multi-tenant SaaS", "Event-driven", "CQRS", "Clean Architecture"],
-  Testing: ["xUnit", "JMeter", "Playwright", "Jest", "Storybook"],
-  Security: ["XSS remediation", "JWT/OAuth2", "OWASP Top 10", "HTML escaping filters"],
-  Databases: ["SQL Server", "PostgreSQL", "Redis", "Convex", "Firebase"],
-  "Cloud & Tooling": ["Azure", "Cloudflare", "Docker", "GitHub Actions", "Vercel"],
+  "Languages & Core": [
+    "C#",
+    "TypeScript",
+    "JavaScript",
+    "SQL (T-SQL)",
+    "Python (in progress)",
+  ],
+  "Backend & APIs": [
+    "ASP.NET Core",
+    ".NET Framework / WCF",
+    "RESTful APIs",
+    "MediatR (CQRS)",
+    "Entity Framework Core",
+    "Microservices",
+  ],
+  "Frontend & UI": [
+    "React",
+    "Next.js",
+    "TypeScript",
+    "Tailwind CSS",
+    "Webpack Module Federation",
+    "HTML5 / Modern CSS",
+  ],
+  "Databases & Caching": [
+    "SQL Server (Stored Procedures)",
+    "PostgreSQL",
+    "Redis",
+    "Convex",
+    "SQLite",
+  ],
+  "Architecture & Design": [
+    "CQRS Pattern",
+    "Micro-Frontends",
+    "Multi-Tenant Systems",
+    "BullMQ Job Queues",
+    "MVVM Architecture",
+    "Feature Flags",
+  ],
+  "Testing & Quality": [
+    "xUnit",
+    "Moq",
+    "Vitest",
+    "React Testing Library",
+    "JMeter (Load Testing)",
+  ],
+  "Security & Delivery": [
+    "XSS Remediation",
+    "HTML Serialization Escaping",
+    "JWT & Session Auth",
+    "Vercel Edge",
+    "Cloudflare",
+  ],
 };
 
 // ─── Contact ─────────────────────────────────────────────────────────────────
@@ -24,7 +68,7 @@ export const SKILLS: Record<string, string[]> = {
 export const CONTACT = {
   email: "arunkulkarni2000@gmail.com",
   github: "arunkumar-dot",
-  linkedin: "arun-kumar-kulkarni",
+  linkedin: "arun-kulkarni226",
 };
 
 // ─── Locale Labels (illustrative) ────────────────────────────────────────────
@@ -43,42 +87,38 @@ export const LOCALE_LABELS: Record<string, { submit: string; amount: string; sta
   "sv-SE": { submit: "Skicka Anspråk", amount: "Belopp", status: "Status" },
 };
 
-// ─── Diff Data ────────────────────────────────────────────────────────────────
+// ─── Diff Data (Honest WCF .NET Framework Implementation) ────────────────────
 
 export const SECURITY_DIFF = {
   before: [
-    "// ❌ Controller – raw object serialization",
-    "public IActionResult GetClaimData(int claimId) {",
-    "  var claim = _repo.GetClaim(claimId);",
-    "  // Danger: user-controlled strings written directly",
-    "  return Content(JsonConvert.SerializeObject(claim),",
-    "    \"application/json\");",
+    "// ❌ Legacy WCF Service – raw unescaped JSON response serializer",
+    "[WebGet(ResponseFormat = WebMessageFormat.Json)]",
+    "public Stream GetParticipantClaim(string claimId) {",
+    "  var claim = _claimsRepo.Fetch(claimId);",
+    "  // Unencoded user-controlled markup returned directly in JSON response",
+    "  string json = JsonConvert.SerializeObject(claim);",
+    "  return new MemoryStream(Encoding.UTF8.GetBytes(json));",
     "}",
-    "",
-    "// ❌ No escaping – XSS vector open",
-    "var html = $\"<div>{claim.Notes}</div>\";",
   ],
   after: [
-    "// ✅ Centralized JSON serialization layer",
-    "public IActionResult GetClaimData(int claimId) {",
-    "  var claim = _repo.GetClaim(claimId);",
-    "  // All output routed through SafeJsonResult",
-    "  return new SafeJsonResult(claim, _serializerOptions);",
+    "// ✅ WCF Custom JsonMediaTypeFormatter with HTML Escaping & Feature Flag",
+    "public class SafeJsonMediaTypeFormatter : JsonMediaTypeFormatter {",
+    "  public SafeJsonMediaTypeFormatter() {",
+    "    // StringEscapeHandling.EscapeHtml safely encodes <, >, &, ', \" in JSON strings",
+    "    SerializerSettings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;",
+    "  }",
     "}",
-    "",
-    "// ✅ Response-capture filter + HTML escaping",
-    "// SafeJsonResult internally calls HtmlEncoder.Default.Encode()",
-    "// on every string property before writing response bytes.",
-    "// Feature-flagged rollout: FF.IsEnabled(\"safe-json-v2\")",
+    "// Scoped strictly to application/json via IDispatchMessageInspector hook",
+    "// Shipped behind feature flag for instant zero-downtime rollback capability.",
   ],
 };
 
 export const CONFIG_MERGE_LEVELS = [
-  { level: 1, name: "Global Defaults", color: "#22d3ee" },
-  { level: 2, name: "Plan-Type Overrides", color: "#38bdf8" },
-  { level: 3, name: "Employer Settings", color: "#818cf8" },
-  { level: 4, name: "Member Preferences", color: "#a78bfa" },
-  { level: 5, name: "Request-Time Params", color: "#f59e0b" },
+  { level: 1, name: "Offering / Plan Scope", color: "#22d3ee" },
+  { level: 2, name: "Employer Settings", color: "#38bdf8" },
+  { level: 3, name: "Administrator Config", color: "#818cf8" },
+  { level: 4, name: "Business Unit Hierarchy", color: "#a78bfa" },
+  { level: 5, name: "Global System Defaults", color: "#f59e0b" },
 ];
 
 export const JMETER_STATS = {
@@ -86,6 +126,7 @@ export const JMETER_STATS = {
   errors: "0.00%",
   p95: "3.3s",
   p99: "4.2s",
+  slaTarget: "2.0s",
   throughput: "600 RPM",
   users: 75,
 };

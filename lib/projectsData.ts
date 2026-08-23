@@ -49,19 +49,19 @@ export interface CaseStudy {
   links?: { label: string; url: string }[];
 }
 
-// ─── Comprehensive Portfolio Data (GitHub Projects & Work Experiences) ───────
+// ─── Comprehensive Portfolio Data (Verified & Resume-Aligned) ────────────────
 
 export const PROJECTS_DATA: CaseStudy[] = [
   // ── 1. HabitFlow — Full-Stack SaaS Habit Tracker ────────────────────────────
   {
     id: "habitflow",
     tileId: "habitflow",
-    tag: "Featured SaaS · github.com/arunkumar-dot/habit-tracker",
+    tag: "Live Production SaaS · tryhabitflow.com",
     title: "HabitFlow — Full-Stack SaaS",
     subtitle:
       "Production SaaS habit tracker with reactive serverless database, multi-device sync & push notifications",
     stack: [
-      "Next.js 14 (App Router)",
+      "Next.js (App Router)",
       "TypeScript",
       "Convex (Reactive DB)",
       "Clerk Auth",
@@ -71,13 +71,13 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     overview: {
       context:
-        "Independently designed, engineered, and launched a production SaaS web application on a custom domain (tryhabitflow.com) with real active users tracking daily habits and routines.",
+        "Independently designed, engineered, and launched a production SaaS web application on a custom domain (tryhabitflow.com) with active users tracking daily habits and routines.",
       problem:
         "Traditional habit trackers rely on local device storage or wasteful HTTP polling to synchronize streak states across tabs and devices, introducing stale data and unnecessary mobile battery drain.",
       solution:
         "Engineered a serverless reactive backend using Convex live query subscriptions and atomic mutations. Integrated Clerk for seamless multi-device authentication and Firebase Cloud Messaging for scheduled push notification reminders. Deployed globally on Cloudflare and Vercel edge networks.",
       outcome:
-        "Live production SaaS application at tryhabitflow.com. Sub-100ms real-time data sync with zero polling overhead, automated streak tracking analytics, and global edge delivery.",
+        "Live production SaaS application running at tryhabitflow.com with sub-100ms real-time data sync, zero polling overhead, automated streak tracking analytics, and global edge delivery.",
     },
     arch: {
       title: "Serverless Reactive SaaS Architecture",
@@ -112,7 +112,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "Convex Reactive Engine vs. REST Polling",
           detail:
-            "Convex's WebTransport subscription model automatically pushes data diffs to all subscribed browser tabs on every mutation, completely eliminating the need for periodic HTTP polling or complex WebSocket socket room management.",
+            "Convex's WebTransport subscription model automatically pushes data diffs to all subscribed browser tabs on every mutation, completely eliminating periodic HTTP polling and complex socket room management.",
         },
         {
           heading: "Clerk Authentication & Session Sync",
@@ -122,7 +122,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "FCM Push Notifications via Web Workers",
           detail:
-            "Built a dedicated Service Worker integration for Firebase Cloud Messaging, delivering background reminder push notifications on mobile and desktop browsers without requiring native mobile app store installations.",
+            "Built a dedicated Service Worker integration for Firebase Cloud Messaging, delivering background reminder push notifications on mobile and desktop browsers without requiring native app store installations.",
         },
       ],
     },
@@ -147,8 +147,8 @@ export const PROJECTS_DATA: CaseStudy[] = [
     },
     metrics: [
       {
-        label: "Live Sync Latency",
-        value: "<100ms",
+        label: "Live Sync",
+        value: "Sub-100ms",
         sub: "real-time reactivity",
         color: "#00f5d4",
       },
@@ -173,10 +173,6 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     links: [
       { label: "Live App (tryhabitflow.com) ↗", url: "https://tryhabitflow.com" },
-      {
-        label: "Source Code (github.com/arunkumar-dot/habit-tracker) ↗",
-        url: "https://github.com/arunkumar-dot/habit-tracker",
-      },
     ],
   },
 
@@ -190,21 +186,20 @@ export const PROJECTS_DATA: CaseStudy[] = [
       "Document intelligence & retrieval-augmented generation engine with vector embeddings and grounded citations",
     stack: [
       "TypeScript",
-      "Next.js 14",
+      "Next.js",
       "LangChain",
-      "Vector DB (HNSW)",
-      "Embeddings API",
+      "Vector Embeddings (HNSW)",
       "LLM Synthesis",
     ],
     overview: {
       context:
-        "Engineered an end-to-end Retrieval-Augmented Generation (RAG) assistant enabling users to upload multi-format documents (PDF, DOCX, TXT), compute dense vector embeddings, and query information via LLMs with verifiable source citations.",
+        "Engineered an end-to-end Retrieval-Augmented Generation (RAG) pipeline enabling users to upload multi-format documents (PDF, DOCX, TXT), generate vector embeddings, and query information via LLMs with verifiable source citations.",
       problem:
         "Raw LLM prompts suffer from context window limits and hallucination when answering document-specific queries. Naive text splitting leads to lost cross-sentence context and fragmented chunks.",
       solution:
-        "Implemented recursive chunking with sliding character overlaps (500 tokens / 50 overlap), cosine similarity search over normalized embeddings, and contextual prompt injection with confidence scoring.",
+        "Implemented recursive character chunking with sliding overlaps (500 tokens / 50 overlap), vector similarity search over dense embeddings, and contextual prompt injection with confidence scoring.",
       outcome:
-        "Sub-250ms vector retrieval latency, 95%+ retrieval precision across complex technical documentation, and grounded answer synthesis with page-level citations.",
+        "Reliable semantic retrieval across complex documentation, grounded answer synthesis with page-level citations, and fallback refusal on irrelevant queries.",
     },
     arch: {
       title: "RAG Ingestion & Query Synthesis Pipeline",
@@ -244,7 +239,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "Cosine Similarity Threshold Filtering",
           detail:
-            "Filtered out vector matches with cosine similarity below 0.72 to prevent hallucination from irrelevant passages, returning a grounded refusal when no matching context exists.",
+            "Filtered out vector matches below confidence thresholds to prevent hallucination from irrelevant passages, returning a grounded refusal when no matching context exists.",
         },
         {
           heading: "Strict Citation Prompt Invariants",
@@ -275,27 +270,27 @@ export const PROJECTS_DATA: CaseStudy[] = [
     },
     metrics: [
       {
-        label: "Retrieval Speed",
-        value: "<250ms",
-        sub: "HNSW vector search",
+        label: "Vector Indexing",
+        value: "HNSW",
+        sub: "dense vector embeddings",
         color: "#00f5d4",
       },
       {
-        label: "Answer Precision",
-        value: "95%+",
-        sub: "grounded citations",
+        label: "Chunking Mode",
+        value: "Recursive",
+        sub: "sliding window overlap",
         color: "#22c55e",
       },
       {
-        label: "Context Filter",
-        value: "0.72 Score",
-        sub: "anti-hallucination threshold",
+        label: "Retrieval Mode",
+        value: "Cosine Top-K",
+        sub: "similarity filtering",
         color: "#818cf8",
       },
       {
-        label: "Format Support",
-        value: "PDF / DOCX",
-        sub: "streaming text extraction",
+        label: "Synthesis",
+        value: "Grounded",
+        sub: "page-level citations",
         color: "#f59e0b",
       },
     ],
@@ -317,22 +312,22 @@ export const PROJECTS_DATA: CaseStudy[] = [
       "High-throughput distributed ingestion engine powered by Hono, BullMQ, Redis, and PostgreSQL",
     stack: [
       "TypeScript",
+      "Node.js",
       "Hono",
       "BullMQ",
       "Redis",
       "PostgreSQL",
       "Prisma",
-      "Docker",
     ],
     overview: {
       context:
-        "Built a resilient, distributed web scraping and analytics service capable of streaming and indexing Hacker News items, top stories, and nested comment trees in near real-time.",
+        "Built a resilient, distributed web scraping and ingestion service capable of streaming and indexing Hacker News items, top stories, and nested comment trees in near real-time.",
       problem:
         "Scraping deeply nested comment trees through recursive API requests quickly exhausts rate limits, starves the single-threaded Node.js event loop, and causes database connection saturation.",
       solution:
-        "Engineered an asynchronous queue-driven architecture utilizing Hono for ultra-lightweight REST endpoints, BullMQ with Redis for job scheduling and worker pool isolation, and PostgreSQL connection pooling.",
+        "Engineered an asynchronous queue-driven architecture utilizing Hono for lightweight HTTP endpoints, BullMQ with Redis for job scheduling and worker pool isolation, and PostgreSQL connection pooling with batched upserts.",
       outcome:
-        "Capable of processing 5,000+ items/minute with automatic exponential backoff retries, zero rate-limit bans, and concurrent worker scaling.",
+        "Stable high-throughput multi-worker ingestion with automatic exponential backoff retries, rate-limit isolation, and resilient database connection management.",
     },
     arch: {
       title: "Distributed Queue & Ingestion Pipeline",
@@ -367,7 +362,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "Hono Framework Performance",
           detail:
-            "Used Hono for sub-millisecond route handling and minimal memory footprint (<45MB) compared to standard Express runtimes.",
+            "Used Hono for sub-millisecond route handling and minimal memory footprint compared to standard Express runtimes.",
         },
         {
           heading: "BullMQ Rate Limiting & Isolation",
@@ -377,7 +372,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "Batched Bulk Upserts",
           detail:
-            "Replaced single-record queries with `INSERT ... ON CONFLICT DO UPDATE` bulk statements, reducing database roundtrips by 85%.",
+            "Replaced single-record queries with `INSERT ... ON CONFLICT DO UPDATE` bulk statements to minimize database roundtrips.",
         },
       ],
     },
@@ -407,27 +402,27 @@ export const PROJECTS_DATA: CaseStudy[] = [
     },
     metrics: [
       {
-        label: "Throughput",
-        value: "5,000+ Items/min",
-        sub: "distributed worker pool",
+        label: "Queue Engine",
+        value: "BullMQ",
+        sub: "Redis priority queues",
         color: "#00f5d4",
       },
       {
-        label: "Error Rate",
-        value: "<0.01%",
-        sub: "exponential backoff",
+        label: "Persistence",
+        value: "PostgreSQL",
+        sub: "Prisma batched upserts",
         color: "#22c55e",
       },
       {
-        label: "DB Latency",
-        value: "-85% Roundtrips",
-        sub: "bulk batch upserts",
+        label: "Worker Model",
+        value: "Concurrent",
+        sub: "rate-controlled workers",
         color: "#f59e0b",
       },
       {
-        label: "Memory Footprint",
-        value: "<45MB",
-        sub: "Hono edge runtime",
+        label: "Resilience",
+        value: "Exponential",
+        sub: "backoff retry policy",
         color: "#818cf8",
       },
     ],
@@ -439,12 +434,12 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
   },
 
-  // ── 4. Distributed Ledger & Consensus (GitHub: distributed_ledger) ──────────
+  // ── 4. Distributed Ledger Engine (GitHub: distributed_ledger) ───────────────
   {
     id: "distributed-ledger",
     tileId: "distributed-ledger",
     tag: "GitHub Project · github.com/arunkumar-dot/distributed_ledger",
-    title: "Distributed Ledger & Consensus Engine",
+    title: "Distributed Ledger Engine",
     subtitle:
       "Cryptographically verifiable blockchain ledger with SHA-256 block hashing and peer gossip synchronization",
     stack: [
@@ -456,13 +451,13 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     overview: {
       context:
-        "Implemented a distributed immutable ledger to explore cryptographic chain integrity, Merkle tree transaction proofs, and peer-to-peer consensus reconciliation across distributed nodes.",
+        "Implemented a distributed immutable ledger exploring cryptographic chain integrity, Merkle tree transaction proofs, and peer-to-peer consensus reconciliation across distributed nodes.",
       problem:
         "Ensuring state consistency across independent nodes without centralized coordination requires tamper-evident transaction verification and deterministic consensus mechanisms.",
       solution:
         "Engineered an append-only cryptographic block structure using SHA-256 proof generation, dynamic difficulty adjustment, Merkle root verification, and peer gossip state reconciliation.",
       outcome:
-        "Verified zero-tamper integrity with instant state verification, sub-second block validation, and deterministic chain resolution.",
+        "Verified tamper-evident state verification, deterministic block validation, and peer chain reorganization.",
     },
     arch: {
       title: "Cryptographic Block & Consensus Pipeline",
@@ -537,27 +532,27 @@ export const PROJECTS_DATA: CaseStudy[] = [
     },
     metrics: [
       {
-        label: "Hash Verification",
-        value: "<1ms",
-        sub: "SHA-256 block digest",
+        label: "Cryptography",
+        value: "SHA-256",
+        sub: "block hash chaining",
         color: "#00f5d4",
       },
       {
-        label: "Tamper Resistance",
-        value: "100%",
-        sub: "cryptographic immutability",
+        label: "Verification",
+        value: "Merkle Tree",
+        sub: "binary hash inclusion proofs",
         color: "#22c55e",
       },
       {
-        label: "State Proofs",
-        value: "O(log N)",
-        sub: "Merkle tree verification",
+        label: "Data Model",
+        value: "Append-Only",
+        sub: "tamper-evident log",
         color: "#818cf8",
       },
       {
-        label: "P2P Consensus",
+        label: "Consensus",
         value: "Longest-Chain",
-        sub: "deterministic resolution",
+        sub: "P2P fork resolution",
         color: "#f59e0b",
       },
     ],
@@ -569,18 +564,17 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
   },
 
-  // ── 5. Paytm Wallet & Payments Clone (GitHub: paytm-clone) ──────────────────
+  // ── 5. Wallet Ledger Engine (GitHub: paytm-clone) ───────────────────────────
   {
     id: "paytm-clone",
     tileId: "paytm-clone",
     tag: "GitHub Project · github.com/arunkumar-dot/paytm-clone",
-    title: "Fintech Payment & Wallet Engine",
+    title: "Wallet Ledger Engine (paytm-clone)",
     subtitle:
-      "Atomic wallet transfers, double-entry ledger validation, and transactional isolation for payment gateways",
+      "Atomic wallet transfers, double-entry ledger validation, and transactional isolation in PostgreSQL",
     stack: [
       "TypeScript",
       "Node.js",
-      "Express",
       "PostgreSQL",
       "Prisma",
       "JWT Auth",
@@ -588,13 +582,13 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     overview: {
       context:
-        "Architected a full-stack digital wallet and peer-to-peer payment simulation to demonstrate ACID-compliant balance transfers, concurrency control, and idempotency guarantees.",
+        "Architected a full-stack digital wallet and peer-to-peer payment service to demonstrate ACID-compliant balance transfers, concurrency control, and idempotency guarantees.",
       problem:
         "Financial transactions subject to simultaneous debit/credit requests suffer from race conditions, dirty reads, and overdraft bugs if balance updates are not isolated in database transactions.",
       solution:
         "Engineered transactional database locks (`SELECT ... FOR UPDATE` via Prisma interactive transactions), double-entry ledger bookkeeping, and client-generated idempotency keys.",
       outcome:
-        "Zero balance discrepancies under concurrent simulated transfer tests, sub-50ms transaction commit time, and secure JWT-authenticated wallet endpoints.",
+        "Zero balance discrepancies under concurrent simulated transfer tests and atomic state transitions in PostgreSQL.",
     },
     arch: {
       title: "Transactional Wallet Transfer Pipeline",
@@ -639,7 +633,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "Idempotency Key Enforcement",
           detail:
-            "Cached transaction IDs in Redis to ensure network retries never result in duplicate debit transactions.",
+            "Ensured network retries and duplicate submissions never result in duplicate debit transactions.",
         },
       ],
     },
@@ -677,27 +671,27 @@ export const PROJECTS_DATA: CaseStudy[] = [
     },
     metrics: [
       {
-        label: "Concurrency Safety",
-        value: "100% ACID",
-        sub: "atomic interactive transactions",
+        label: "Concurrency",
+        value: "Row Locking",
+        sub: "pessimistic update guards",
         color: "#00f5d4",
       },
       {
-        label: "Transfer Latency",
-        value: "<50ms",
-        sub: "optimized DB indices",
+        label: "Bookkeeping",
+        value: "Double-Entry",
+        sub: "debit/credit ledger entries",
         color: "#22c55e",
       },
       {
-        label: "Audit Integrity",
-        value: "Double-Entry",
-        sub: "zero ledger discrepancies",
+        label: "Database",
+        value: "PostgreSQL",
+        sub: "ACID interactive transactions",
         color: "#818cf8",
       },
       {
-        label: "Overdraft Guard",
-        value: "Row Lock",
-        sub: "guaranteed non-negative balance",
+        label: "Idempotency",
+        value: "Guaranteed",
+        sub: "deduplicated payment retries",
         color: "#f59e0b",
       },
     ],
@@ -716,7 +710,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     tag: "Wipro / FedEx Australia · Mobile & Distributed Systems",
     title: "Courier & Express Logistics Platform",
     subtitle:
-      "Offline-first mobile courier operations and high-throughput package dispatch engine for FedEx Australia",
+      "Cross-platform courier workflows, API contract architecture & SQLite persistence for FedEx Australia",
     stack: [
       "C#",
       ".NET",
@@ -726,161 +720,149 @@ export const PROJECTS_DATA: CaseStudy[] = [
       "SQLite",
       "HTTPS REST APIs",
     ],
-    role: "Project Engineer — Cross-Platform Mobile Engineer",
+    role: "Project Engineer (2020–2022)",
     recognition: "Panache Best Newcomer Award (2022)",
     overview: {
       context:
-        "FedEx Australia couriers required a rugged, fault-tolerant cross-platform mobile application to scan package barcodes, record proof-of-delivery signatures, and execute route workflows under variable and remote cellular connectivity conditions.",
+        "FedEx Australia couriers required reliable cross-platform mobile functionality to scan package barcodes, record proof-of-delivery signatures, and manage route stops across varying cellular coverage zones.",
       problem:
-        "Couriers delivering in basement loading docks and rural zones experienced network dropouts. Direct API calls stalled UI responsiveness, caused failed delivery submissions, and led to duplicate package updates during reconnection.",
+        "Native Android and iOS mobile engineering teams lacked unified API contract specifications, leading to duplicate integration logic, inconsistent status handling, and redundant database roundtrips.",
       solution:
-        "Architected an offline-first SQLite persistence layer with write-ahead logging (WAL) and an automated transaction sync queue. Streamlined HTTPS REST API request/response contracts and optimized local SQL indexing to eliminate redundant network roundtrips.",
+        "Analysed and authored standardized REST API request/response contracts over HTTPS that served as the foundational specification for both Android and iOS native mobile teams. Built cross-platform courier features using Xamarin.Forms and .NET MAUI with MVVM architecture, and optimized local SQLite query execution to eliminate redundant database calls.",
       outcome:
-        "Awarded the Panache Best Newcomer Award (2022) within two months of joining for resolving complex design-flow defects. Achieved 100% offline operational resilience with zero UI blocking during package scans.",
+        "Awarded the Panache Best Newcomer Award (2022) for engineering delivery. Successfully established the core API contract foundation used across native mobile teams and streamlined local persistence.",
     },
     arch: {
-      title: "Offline-First Mobile Courier Architecture",
+      title: "Cross-Platform Mobile & API Contract Architecture",
       steps: [
         {
-          label: "Mobile Courier App",
+          label: "Mobile Courier Client",
           sub: "Xamarin.Forms / .NET MAUI with MVVM data binding",
           variant: "primary",
         },
         {
-          label: "Offline Sync Orchestrator",
-          sub: "Transaction queue with exponential backoff retry",
+          label: "Local Persistence Layer",
+          sub: "SQLite caching to reduce redundant network roundtrips",
           variant: "accent",
         },
         {
-          label: "SQLite Local-First Cache",
-          sub: "Encrypted write-ahead logging (WAL) & indexed storage",
+          label: "Standardized REST API Spec",
+          sub: "Documented contract specifications for Android & iOS teams",
           variant: "primary",
         },
         {
-          label: "HTTPS REST API Gateway",
-          sub: "Streamlined contracts with idempotency keys",
-          variant: "secondary",
-        },
-        {
-          label: "FedEx Enterprise Core",
-          sub: "Central dispatch, tracking, and proof-of-delivery",
+          label: "Enterprise Dispatch Core",
+          sub: "FedEx parcel status, route manifests & delivery proofs",
           variant: "secondary",
         },
       ],
       decisions: [
         {
-          heading: "Local-First SQLite Persistence Layer",
+          heading: "API Contract Standardization for Native Mobile Teams",
           detail:
-            "Every barcode scan, timestamp, and signature capture is committed locally to SQLite first before enqueuing for background dispatch. This guarantees zero UI freezing even in dead cellular zones.",
+            "Authored and documented comprehensive REST API request/response specifications that served as the single source of truth for native Android and iOS mobile engineering teams.",
         },
         {
-          heading: "Optimized Composite Query Indexing",
+          heading: "MVVM Architecture & Local SQLite Caching",
           detail:
-            "Added specialized composite SQLite indexes on tracking identifiers and delivery stop sequences, reducing local query execution time by 65% on rugged handheld terminals.",
+            "Structured cross-platform UI components with MVVM separation of concerns, utilizing local SQLite storage to cache delivery routes and eliminate unnecessary database queries.",
         },
         {
-          heading: "REST Contract Streamlining & Idempotency",
+          heading: "Design-Flow Defect Remediation",
           detail:
-            "Refactored JSON payload structures to minimize cellular data consumption and introduced client-generated idempotency keys, eliminating duplicate package status transitions during network reconnection.",
+            "Identified and resolved complex workflow bugs across the mobile delivery lifecycle, earning the Panache Award within two months of joining.",
         },
       ],
     },
     diff: {
-      legend: "Direct blocking HTTP scan vs. offline-first transactional queue",
+      legend: "Unstandardized ad-hoc endpoints vs. Standardized REST API Contract Specification",
       before: [
-        "// ❌ Direct HTTP call on barcode scan — blocks UI during network dropouts",
-        "public async Task<bool> RecordDeliveryScanAsync(DeliveryScan scan) {",
-        "  try {",
-        "    var response = await _httpClient.PostAsJsonAsync(\"/api/v1/scans\", scan);",
-        "    return response.IsSuccessStatusCode; // Fails immediately if offline!",
-        "  } catch (HttpRequestException ex) {",
-        "    _logger.LogError(ex, \"Failed to submit delivery scan\");",
-        "    return false; // Scan dropped; courier forced to rescan later",
-        "  }",
+        "// ❌ Unstandardized ad-hoc payload — divergent schemas between iOS & Android",
+        "POST /api/package/updateStatus",
+        "{",
+        "  \"barcode\": \"FX-9281-AU\",",
+        "  \"status\": \"DELIVERED\",",
+        "  \"signer\": \"J. Doe\" // Missing schema validation & timestamp precision",
         "}",
       ],
       after: [
-        "// ✅ Offline-first SQLite persistence with transactional sync queue",
-        "public async Task RecordDeliveryScanAsync(DeliveryScan scan) {",
-        "  await _db.RunInTransactionAsync(conn => {",
-        "    conn.Insert(scan); // 1. Instant local write with WAL",
-        "    conn.Insert(new SyncQueueEntry(scan.Id, ScanOperation.Deliver)); // 2. Queue for sync",
-        "  });",
-        "  _syncOrchestrator.TriggerBackgroundSync(); // 3. Dispatches via HTTPS when online",
+        "// ✅ Standardized REST API contract — unified specification for all mobile platforms",
+        "POST /api/v1/deliveries/scans",
+        "{",
+        "  \"trackingNumber\": \"FX-9281-AU\",",
+        "  \"statusCode\": \"DELIVERED\",",
+        "  \"timestampUtc\": \"2022-08-23T14:32:00Z\",",
+        "  \"idempotencyKey\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",",
+        "  \"signature\": { \"signerName\": \"J. Doe\", \"format\": \"SVG_BASE64\" }",
         "}",
       ],
     },
     metrics: [
       {
-        label: "Award Recognition",
-        value: "Panache Award",
-        sub: "Best Newcomer 2022",
+        label: "Engineering Recognition",
+        value: "Panache 2022",
+        sub: "Best Newcomer Award",
         color: "#f59e0b",
       },
       {
-        label: "Offline Resilience",
-        value: "100%",
-        sub: "zero dropped delivery scans",
+        label: "Platform Teams",
+        value: "2 Teams",
+        sub: "Android & iOS native built off specs",
         color: "#00f5d4",
       },
       {
-        label: "UI Blocking Time",
-        value: "0ms",
-        sub: "instant local SQLite commit",
+        label: "Architecture",
+        value: "MVVM + SQLite",
+        sub: "local persistence & clean binding",
         color: "#22c55e",
       },
       {
-        label: "Query Speed",
-        value: "65% Faster",
-        sub: "composite SQL indexing",
+        label: "Integration",
+        value: "REST / HTTPS",
+        sub: "standardized contract specifications",
         color: "#818cf8",
       },
     ],
     links: [
       {
         label: "LinkedIn Experience Verification ↗",
-        url: "https://linkedin.com/in/arun-kumar-kulkarni",
-      },
-      {
-        label: "GitHub Profile ↗",
-        url: "https://github.com/arunkumar-dot",
+        url: "https://linkedin.com/in/arun-kulkarni226",
       },
     ],
   },
 
-  // ── 7. Claims Web API & Bounded Context Migration (Altimetrik / WEX Health) ─
+  // ── 7. Claims Web API & Bounded Context Migration ───────────────────────────
   {
     id: "claims",
     tileId: "claims",
-    tag: "Altimetrik / WEX Health · Backend & Distributed Systems",
+    tag: "Health Benefits & Claims Platform · Altimetrik",
     title: "Claims Web API & Bounded Context Migration",
     subtitle:
       "Participant-facing eligibility engine for consumer-directed accounts (FSA/HSA/HRA) with 5-level config resolution",
     stack: [
-      ".NET 8",
+      "C#",
       "ASP.NET Core",
-      "MediatR CQRS",
-      "EF Core",
-      "SQL Server Sharding",
-      "OpenAPI",
+      "MediatR (CQRS)",
+      "Entity Framework Core",
+      "SQL Server (Stored Procedures)",
       "JMeter",
     ],
     overview: {
       context:
-        "WEX Health's consumer-directed accounts platform required a modernized eligibility check pipeline. The legacy system coupled business rules directly into database stored procedures with no clean separation of concerns.",
+        "Modernized the participant-facing claim filing eligibility check pipeline for consumer-directed accounts (FSA, HSA, HRA) on an enterprise health benefits platform.",
       problem:
-        "7 eligibility checks were tangled with side-effectful data writes, had 6 behavioural divergences from production (election predicates, date clamping, exception semantics), and EF Core DbContext concurrency crashes occurred under parallel execution.",
+        "Legacy eligibility checks coupled business rules directly into database stored procedures with side-effectful reads, 6 behavioral parity divergences from production, and DbContext concurrency exceptions under parallel task execution.",
       solution:
-        "Engineered an ASP.NET Core → MediatR CQRS → Orchestration Service → pure Rules Engine → Stored-Procedure Settings Repository pipeline. Implemented a 5-level configuration merge hierarchy. Scoped 4 of 7 checks out to protect bounded context. Hardened EF Core DbContext with per-operation factories.",
+        "Engineered an ASP.NET Core → MediatR CQRS query handler → Orchestration service → pure Rules Engine → Stored-procedure settings repository pipeline. Implemented a 5-level configuration resolution hierarchy. Scoped 4 of 7 checks out to protect bounded context boundaries. Hardened EF Core with per-operation DbContext factory isolation.",
       outcome:
-        "Passed JMeter load testing at 75 concurrent users / 600 RPM across 4,061 samples with 0.00% error rate (p95: 3.3s, p99: 4.2s). Shipped 8 test suites and OpenAPI client generation for downstream teams.",
+        "Evaluated via JMeter load testing at 75 concurrent users / 600 RPM across 4,061 samples with 0.00% error rate. Identified a p95 latency regression (3.3s) against the 2.0s SLA target and root-caused the issue to stored procedure hierarchy traversal. Caught 6 parity defects pre-PR.",
     },
     arch: {
       title: "ASP.NET Core MediatR CQRS Pipeline",
       steps: [
         {
           label: "HTTP Controller",
-          sub: "Route validation & dispatch",
+          sub: "Route validation & MediatR dispatch",
           variant: "secondary",
         },
         {
@@ -906,9 +888,9 @@ export const PROJECTS_DATA: CaseStudy[] = [
       ],
       decisions: [
         {
-          heading: "5-Level Configuration Merge Hierarchy",
+          heading: "Five-Level Configuration Resolution",
           detail:
-            "Resolution order: Global Defaults → Plan-Type Overrides → Employer Settings → Member Preferences → Request-Time Params. Each level overrides only keys it defines; absent keys fall through with exact legacy parity.",
+            "Resolves from most-specific scope → … → global defaults, with per-setting merge semantics rather than first-match-wins. Each setting resolves independently across all five levels, holding behavioural parity with the legacy implementation.",
         },
         {
           heading: "Bounded Context Defense",
@@ -918,7 +900,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         {
           heading: "IDbContextFactory Concurrency Hardening",
           detail:
-            "Replaced shared scoped DbContext with IDbContextFactory<T> in parallel async continuations, eliminating InvalidOperationException thread-safety crashes under high concurrency.",
+            "Replaced shared scoped DbContext with IDbContextFactory in parallel async continuations, eliminating InvalidOperationException thread-safety crashes under high concurrency.",
         },
       ],
     },
@@ -949,62 +931,61 @@ export const PROJECTS_DATA: CaseStudy[] = [
     },
     metrics: [
       {
-        label: "JMeter Load Test",
-        value: "0.00% Errors",
-        sub: "4,061 samples @ 600 RPM",
+        label: "Load Test Scale",
+        value: "4,061 Samples",
+        sub: "600 RPM / 75 virtual users",
         color: "#00f5d4",
       },
       {
-        label: "Latency (p95 / p99)",
-        value: "3.3s / 4.2s",
-        sub: "within strict SLA targets",
+        label: "Error Rate",
+        value: "0.00%",
+        sub: "zero failed requests",
+        color: "#22c55e",
+      },
+      {
+        label: "Latency SLA Analysis",
+        value: "p95 3.3s",
+        sub: "root-caused vs 2.0s target",
         color: "#f59e0b",
       },
       {
-        label: "Peak Concurrency",
-        value: "75 Virtual Users",
-        sub: "simulated load profile",
+        label: "Parity Defects",
+        value: "6 Caught",
+        sub: "resolved pre-PR",
         color: "#818cf8",
-      },
-      {
-        label: "Verification",
-        value: "8 Test Suites",
-        sub: "full behavioral parity",
-        color: "#22c55e",
       },
     ],
     links: [
       {
         label: "LinkedIn Experience Verification ↗",
-        url: "https://linkedin.com/in/arun-kumar-kulkarni",
+        url: "https://linkedin.com/in/arun-kulkarni226",
       },
     ],
   },
 
-  // ── 8. Consumer Claims Micro-Frontend (Altimetrik / WEX Health) ─────────────
+  // ── 8. Consumer Claims Micro-Frontend ───────────────────────────────────────
   {
     id: "mfe",
     tileId: "mfe",
-    tag: "Altimetrik / WEX Health · Frontend & Architecture",
+    tag: "Health Benefits & Claims Platform · Altimetrik",
     title: "Consumer Claims Micro-Frontend",
     subtitle:
-      "React 19 micro-frontend for reimbursement method selection with 11-locale internationalization",
+      "React micro-frontend for reimbursement method selection with 11-locale internationalization",
     stack: [
-      "React 19",
+      "React",
       "TypeScript",
       "Vite",
       "Vitest",
       "React Testing Library",
-      "GraphQL BFF",
-      "Module Federation",
+      "Webpack Module Federation",
     ],
     overview: {
       context:
-        "The consumer claims portal's reimbursement selection flow was a legacy 4-step wizard that required multiple page transitions to choose between Direct Deposit and Check-by-Mail, causing high mobile abandonment.",
+        "The consumer claims portal's reimbursement selection flow was a legacy 4-step wizard requiring multiple page transitions to choose between Direct Deposit and Check-by-Mail, causing high mobile abandonment.",
       problem:
         "Multi-step wizard UX increased drop-off rates on mobile devices; tight coupling to the monorepo shell prevented independent deployments; missing internationalization support across global participant bases.",
       solution:
-        "Replaced the wizard with a unified review-stage payout selector dialog. Built the MFE with React 19, Vite, and Module Federation. Streamlined bank-accounts GraphQL BFF contracts and shipped internationalized copy across 11 locales.",
+        "Replaced the wizard with a unified review-stage payout selector dialog. Built the MFE with React, TypeScript, and Module Federation. Shipped internationalized copy across 11 locales.",
       outcome:
         "Reduced user click path from 8 to 2 steps. Shipped 11 localized languages with full Vitest test suite coverage and independent zero-downtime deployment capability.",
     },
@@ -1027,11 +1008,6 @@ export const PROJECTS_DATA: CaseStudy[] = [
           variant: "primary",
         },
         {
-          label: "GraphQL BFF Gateway",
-          sub: "Bank accounts & validation contract layer",
-          variant: "accent",
-        },
-        {
           label: "i18n Localization Engine",
           sub: "11 locale string catalogs (en, es, fr, de, etc.)",
           variant: "accent",
@@ -1049,9 +1025,9 @@ export const PROJECTS_DATA: CaseStudy[] = [
             "Decoupled the micro-frontend from the monolith release cycle, enabling zero-downtime independent deployments and isolated dependency management.",
         },
         {
-          heading: "Strict GraphQL Contract Typing",
+          heading: "11-Locale Runtime Internationalization",
           detail:
-            "Fixed schema nullable mismatches during upstream BFF review, preventing runtime null reference exceptions in production edge cases.",
+            "Structured key-based dictionary lookups enabling instant dynamic language switching across 11 global locales without full bundle reloads.",
         },
       ],
     },
@@ -1079,7 +1055,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
       {
         label: "Locales Shipped",
         value: "11 Locales",
-        sub: "en-US, es-ES, fr-FR, de-DE, pt-BR...",
+        sub: "global participant coverage",
         color: "#00f5d4",
       },
       {
@@ -1096,7 +1072,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
       },
       {
         label: "Test Coverage",
-        value: "100% Vitest",
+        value: "Vitest + RTL",
         sub: "state transition testing",
         color: "#818cf8",
       },
@@ -1104,7 +1080,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     links: [
       {
         label: "LinkedIn Experience Verification ↗",
-        url: "https://linkedin.com/in/arun-kumar-kulkarni",
+        url: "https://linkedin.com/in/arun-kulkarni226",
       },
     ],
   },
@@ -1113,116 +1089,116 @@ export const PROJECTS_DATA: CaseStudy[] = [
   {
     id: "xss",
     tileId: "security",
-    tag: "Altimetrik / WEX Health · Security & Compliance",
+    tag: "Enterprise Security · Altimetrik",
     title: "Enterprise Security & XSS Remediation",
     subtitle:
-      "Centralized JSON serialization and HTML escaping framework across 4 legacy backend services",
+      "Custom JSON serialization and HTML escaping framework across 4 legacy WCF backend services",
     stack: [
       "C#",
-      ".NET 8",
-      "ASP.NET Core",
-      "OWASP Top 10",
-      "Custom JSON Serialization",
+      "WCF (Windows Communication Foundation)",
+      ".NET Framework",
+      "Newtonsoft.Json",
+      "IDispatchMessageInspector",
       "Feature Flags",
     ],
     overview: {
       context:
-        "A third-party penetration test uncovered a critical stored XSS vulnerability across 4 legacy backend services where unencoded user strings (claim notes, employee names) were serialized into JSON responses.",
+        "A third-party penetration test uncovered an XSS vulnerability across 4 legacy backend services where unencoded user strings were serialized into JSON responses.",
       problem:
-        "Over 20 endpoints across 4 legacy repositories returned unencoded HTML markup in JSON, allowing script injection into authenticated participant sessions.",
+        "Over 20 endpoints across 4 legacy WCF services returned unencoded HTML markup in JSON. Because the affected services were WCF on .NET Framework, standard ASP.NET Core encoders (System.Text.Encodings.Web) did not apply.",
       solution:
-        "Engineered a centralized SafeJsonResult layer with recursive HtmlEncoder property escaping and ASP.NET Core response-capture filters. Packaged as a shared NuGet library and deployed behind feature flags for zero-downtime staged rollout.",
+        "Engineered a custom Newtonsoft.Json serializer configured with HTML escaping (`StringEscapeHandling.EscapeHtml`), response-capture message inspectors, and pipeline hooks, consolidated into a single shared library and scoped strictly to `application/json` so XML/binary payloads remained untouched. Deployed behind feature flags for instant rollback.",
       outcome:
-        "Closed OWASP A03 (Injection) vulnerability across all 4 services with zero downtime and instant feature-flag rollback capability.",
+        "Completely remediated the XSS vulnerability across all 4 legacy WCF services with zero downtime and instant feature-flag rollback capability.",
     },
     arch: {
-      title: "Centralized JSON Escaping Pipeline",
+      title: "WCF Custom JSON Serialization & Escaping Pipeline",
       steps: [
         {
-          label: "ASP.NET Core Controller",
-          sub: "Receives request & fetches entity",
+          label: "WCF Service Operation",
+          sub: "Receives RPC call & retrieves entity payload",
           variant: "secondary",
         },
         {
-          label: "SafeJsonResult Action",
-          sub: "Custom IActionResult output interceptor",
+          label: "Message Inspector Hook",
+          sub: "IDispatchMessageInspector intercepts outgoing reply",
           variant: "accent",
         },
         {
-          label: "Response-Capture Filter",
-          sub: "Pipeline hook for response payload",
+          label: "Content-Type Filter",
+          sub: "Scopes execution strictly to application/json",
           variant: "primary",
         },
         {
-          label: "Recursive HtmlEncoder",
-          sub: "Deep string property sanitization",
+          label: "Custom Newtonsoft Serializer",
+          sub: "StringEscapeHandling.EscapeHtml encodes <, >, &, ', \"",
           variant: "primary",
         },
         {
-          label: "Feature Flag Rollout Gate",
-          sub: "Granular percentage rollout per service",
+          label: "Feature Flag Gate",
+          sub: "Enables instant zero-downtime rollback capability",
           variant: "accent",
-        },
-        {
-          label: "Secure HTTP Response",
-          sub: "Sanitized JSON payload returned to browser",
-          variant: "secondary",
         },
       ],
       decisions: [
         {
-          heading: "Centralized Serialization vs. Endpoint-by-Endpoint",
+          heading: "Why Standard Encoders Did Not Apply",
           detail:
-            "Implemented a shared NuGet package with custom ContractResolver to sanitize all existing and future endpoints without touching 20+ controllers individually.",
+            "Because the affected services were built on legacy WCF / .NET Framework, ASP.NET Core encoders (System.Text.Encodings.Web) were unavailable. Used Newtonsoft.Json with `StringEscapeHandling.EscapeHtml` within custom formatters.",
         },
         {
-          heading: "Feature Flag Staged Rollout",
+          heading: "Strict application/json Scope Isolation",
           detail:
-            "Enabled the security filter progressively across services over 2 weeks with telemetry monitoring to catch edge-case encoding quirks before full enablement.",
+            "Scoped the custom serializer strictly to `application/json` responses, ensuring SOAP/XML and binary endpoints in the legacy WCF services were untouched.",
         },
         {
-          heading: "Zero Model Mutation",
+          heading: "Feature-Flagged Staged Rollout",
           detail:
-            "Preserved raw string storage in database and applied encoding strictly during serialization before writing HTTP response bytes.",
+            "Packaged the solution into a shared library and deployed behind feature flags, allowing incremental verification with immediate rollback safety.",
         },
       ],
     },
     diff: {
-      legend: "Raw JsonConvert output vs. centralized SafeJsonResult escaping",
+      legend: "Legacy WCF unescaped JSON vs. Custom SafeJsonMediaTypeFormatter with HTML escaping",
       before: [
-        "// ❌ Raw object serialization — returns unencoded HTML markup in JSON",
-        "public IActionResult GetClaimData(int claimId) {",
-        "  var claim = _repo.GetClaim(claimId);",
-        "  // Danger: user-controlled string (claim.Notes) written directly to response",
-        "  return Content(JsonConvert.SerializeObject(claim), \"application/json\");",
+        "// ❌ Legacy WCF Service – raw unescaped JSON response serializer",
+        "[WebGet(ResponseFormat = WebMessageFormat.Json)]",
+        "public Stream GetParticipantClaim(string claimId) {",
+        "  var claim = _claimsRepo.Fetch(claimId);",
+        "  // Unencoded user-controlled markup returned directly in JSON response",
+        "  string json = JsonConvert.SerializeObject(claim);",
+        "  return new MemoryStream(Encoding.UTF8.GetBytes(json));",
         "}",
       ],
       after: [
-        "// ✅ Centralized JSON serialization with recursive HTML escaping & feature flags",
-        "public IActionResult GetClaimData(int claimId) {",
-        "  var claim = _repo.GetClaim(claimId);",
-        "  // SafeJsonResult recursively encodes all string properties with HtmlEncoder",
-        "  return new SafeJsonResult(claim, _serializerOptions);",
+        "// ✅ WCF Custom JsonMediaTypeFormatter with HTML Escaping & Feature Flag",
+        "public class SafeJsonMediaTypeFormatter : JsonMediaTypeFormatter {",
+        "  public SafeJsonMediaTypeFormatter() {",
+        "    // StringEscapeHandling.EscapeHtml safely encodes <, >, &, ', \" in JSON strings",
+        "    SerializerSettings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;",
+        "  }",
         "}",
+        "// Scoped strictly to application/json via IDispatchMessageInspector hook",
+        "// Shipped behind feature flag for instant zero-downtime rollback capability.",
       ],
     },
     metrics: [
       {
         label: "Services Patched",
         value: "4 Services",
-        sub: "legacy enterprise repositories",
+        sub: "legacy WCF repositories",
         color: "#00f5d4",
       },
       {
         label: "Endpoints Secured",
         value: "20+ Endpoints",
-        sub: "protected via centralized filter",
+        sub: "protected via shared library",
         color: "#22c55e",
       },
       {
-        label: "OWASP Finding",
-        value: "A03 Closed",
-        sub: "zero injection vulnerabilities",
+        label: "Serializer Engine",
+        value: "Newtonsoft",
+        sub: "StringEscapeHandling.EscapeHtml",
         color: "#f59e0b",
       },
       {
@@ -1235,7 +1211,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     links: [
       {
         label: "LinkedIn Experience Verification ↗",
-        url: "https://linkedin.com/in/arun-kumar-kulkarni",
+        url: "https://linkedin.com/in/arun-kulkarni226",
       },
     ],
   },
