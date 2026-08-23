@@ -31,46 +31,39 @@ void main() {
   float seed2 = aSeed * 6.28318;
   float timeSpeed = 0.35 + uIntensity * 0.9;
   
-  // ── 0. Continuous Ambient Anti-Gravity Drift (Always Active) ─────────────
-  // Smooth, multi-frequency continuous motion independent of cursor & scroll
-  float tSlow = uTime * (0.40 + uIntensity * 0.45);
+  // ── 0. Symmetrical, Perpetual Ambient Harmonic Drift (Balanced & Centered) ──
+  // Pure local harmonic displacement (no asymmetric global coordinate matrix rotation)
+  float t = uTime * (0.35 + uIntensity * 0.45);
   
-  float driftX = sin(tSlow * 0.75 + p.y * 0.32 + seed2) * 0.65 + 
-                 cos(tSlow * 0.45 + p.z * 0.48) * 0.35;
-  float driftY = cos(tSlow * 0.65 + p.x * 0.28 + seed2 * 1.35) * 0.75 + 
-                 sin(tSlow * 0.38 + p.z * 0.36) * 0.35;
-  float driftZ = sin(tSlow * 0.55 + p.x * 0.40 + p.y * 0.40) * 0.50;
+  float driftX = sin(t * 0.70 + p.y * 0.25 + seed2) * 0.50 + 
+                 cos(t * 0.40 + p.z * 0.40 + seed2 * 0.5) * 0.30;
+  float driftY = cos(t * 0.60 + p.x * 0.22 + seed2 * 1.2) * 0.60 + 
+                 sin(t * 0.35 + p.z * 0.35) * 0.25;
+  float driftZ = sin(t * 0.50 + p.x * 0.30 + p.y * 0.30) * 0.40;
 
   p.x += driftX;
   p.y += driftY;
   p.z += driftZ;
 
-  // Subtle continuous orbital micro-rotation
-  float orbAngle = uTime * (0.04 + uIntensity * 0.08);
-  float cOrb = cos(orbAngle);
-  float sOrb = sin(orbAngle);
-  mat2 rotXZ = mat2(cOrb, -sOrb, sOrb, cOrb);
-  p.xz = rotXZ * p.xz;
-
   // ── 1. Hero Wave Dynamics (progress 0.0 -> 0.3) ───────────────────────────
-  float wave = sin(p.x * 0.32 + uTime * timeSpeed + seed2) * 
-               cos(p.y * 0.28 + uTime * 0.7 * timeSpeed) * (0.40 + uIntensity * 0.60);
+  float wave = sin(p.x * 0.28 + uTime * timeSpeed + seed2) * 
+               cos(p.y * 0.24 + uTime * 0.65 * timeSpeed) * (0.35 + uIntensity * 0.55);
   p.z += wave;
-  p.y += sin(uTime * 0.52 * timeSpeed + seed2) * 0.28;
+  p.y += sin(uTime * 0.45 * timeSpeed + seed2) * 0.22;
 
   // ── 2. Work Section Rotation & Grid Expansion (0.2 -> 0.65) ───────────────
   float workFactor = smoothstep(0.12, 0.38, uScrollProgress) * (1.0 - smoothstep(0.58, 0.78, uScrollProgress));
-  p.x *= (1.0 + workFactor * 0.28);
-  p.z += sin(p.x * 0.7 + uTime * 0.8) * workFactor * 0.6;
+  p.x *= (1.0 + workFactor * 0.20);
+  p.z += sin(p.x * 0.5 + uTime * 0.7) * workFactor * 0.5;
   
   // ── 3. Case Studies Ambient Flow (0.45 -> 0.8) ─────────────────────────────
   float caseFactor = smoothstep(0.40, 0.60, uScrollProgress) * (1.0 - smoothstep(0.75, 0.92, uScrollProgress));
-  p.x += sin(uTime * 0.35 + p.y * 0.25) * caseFactor * 0.35;
+  p.x += sin(uTime * 0.30 + p.y * 0.20) * caseFactor * 0.30;
 
   // ── 4. Contact Section Focal Convergence (0.75 -> 1.0) ────────────────────
   float contactFactor = smoothstep(0.72, 0.98, uScrollProgress);
   vec3 toFocal = uFocalPoint - p;
-  p += toFocal * contactFactor * 0.58 * (0.45 + 0.55 * sin(seed2 + uTime * 1.5));
+  p += toFocal * contactFactor * 0.50 * (0.45 + 0.55 * sin(seed2 + uTime * 1.4));
 
   // ── 5. Stress Mode Telemetry Trails ───────────────────────────────────────
   if (uIntensity > 0.01) {
@@ -78,26 +71,26 @@ void main() {
     p.y += uIntensity * upwardFlow * 0.26;
   }
 
-  // ── 6. Global Interactive Cursor Repulsion Ripple ─────────────────────────
+  // ── 6. Symmetrical Interactive Cursor Repulsion ───────────────────────────
   vec2 diff = p.xy - uMouse;
   float dist = length(diff);
-  float repRadius = 3.4 + uIntensity * 1.6;
+  float repRadius = 3.2 + uIntensity * 1.5;
   if (dist < repRadius && dist > 0.01) {
     float force = pow((repRadius - dist) / repRadius, 2.0);
     p.xy += (diff / dist) * force * (1.1 + uIntensity * 1.2);
-    p.z += force * 0.55;
+    p.z += force * 0.50;
   }
 
-  // ── Alpha Computation (pin-sharp opacity control with breathing) ──────────
-  float baseAlpha = 0.24 + 0.44 * sin(seed2 + uTime * 0.75);
-  vAlpha = baseAlpha * (0.58 + uIntensity * 0.42);
+  // ── Alpha Computation (symmetrical breathing falloff) ─────────────────────
+  float baseAlpha = 0.25 + 0.40 * sin(seed2 + uTime * 0.70);
+  vAlpha = baseAlpha * (0.60 + uIntensity * 0.40);
 
   vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mvPosition;
 
-  // Ultra-fine pin-sharp point size (1.5 - 3.2px)
-  float pSize = (1.7 + uIntensity * 1.3) * (200.0 / max(1.0, -mvPosition.z)) * min(uDpr, 1.75);
-  gl_PointSize = clamp(pSize, 1.2, 3.5);
+  // Balanced point size
+  float pSize = (1.8 + uIntensity * 1.2) * (200.0 / max(2.0, -mvPosition.z)) * min(uDpr, 1.75);
+  gl_PointSize = clamp(pSize, 1.4, 3.6);
 }
 `;
 
@@ -146,7 +139,7 @@ function GlobalParticleField({
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null!);
 
-  const COUNT = 8500;
+  const COUNT = 9000;
 
   const [geometry, uniforms] = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -155,11 +148,12 @@ function GlobalParticleField({
     const seeds     = new Float32Array(COUNT);
     const colorMix  = new Float32Array(COUNT);
 
-    // Form an expansive structured volume with natural spatial dispersal
+    // Form an expansive, symmetrically balanced volume across full viewport
     for (let i = 0; i < COUNT; i++) {
-      const x = (Math.random() - 0.5) * 32;
+      // Perfectly balanced horizontal range [-17.5, +17.5]
+      const x = (Math.random() - 0.5) * 35;
       const y = (Math.random() - 0.5) * 22;
-      const z = (Math.random() - 0.5) * 8 - 1.5;
+      const z = (Math.random() - 0.5) * 7.5 - 1.0;
 
       positions[i * 3 + 0] = x;
       positions[i * 3 + 1] = y;
@@ -170,8 +164,8 @@ function GlobalParticleField({
       basePos[i * 3 + 2] = z;
 
       seeds[i] = Math.random();
-      // Gradient distribution favoring primary color towards top/center
-      colorMix[i] = Math.min(Math.max((x / 16) * 0.5 + 0.5 + (Math.random() - 0.5) * 0.3, 0.0), 1.0);
+      // Smooth color gradient mix across the whole field
+      colorMix[i] = Math.min(Math.max((x / 17.5) * 0.5 + 0.5, 0.0), 1.0);
     }
 
     geo.setAttribute('position',  new THREE.BufferAttribute(positions, 3));
@@ -244,15 +238,20 @@ interface ShardCfg {
 function buildShardConfigs(count: number): ShardCfg[] {
   const r = (a: number, b: number) => Math.random() * (b - a) + a;
   const kinds: ShardKind[] = ['shard', 'chip', 'node', 'ring'];
-  return Array.from({ length: count }, (_, i) => ({
-    id: i,
-    kind: kinds[i % kinds.length],
-    base: [r(-13, 13), r(-8, 8), r(-4.5, 0.5)],
-    scale: r(0.08, 0.26),
-    phase: [r(0, 6.28), r(0, 6.28), r(0, 6.28)],
-    rotSpeed: [r(-0.35, 0.35), r(-0.35, 0.35), r(-0.25, 0.25)],
-    glass: i < 12,
-  }));
+  return Array.from({ length: count }, (_, i) => {
+    // Symmetrical positioning with equal left and right distribution
+    const isRight = i % 2 === 0;
+    const x = isRight ? r(1.5, 14.5) : r(-14.5, -1.5);
+    return {
+      id: i,
+      kind: kinds[i % kinds.length],
+      base: [x, r(-8, 8), r(-4.5, 0.5)],
+      scale: r(0.09, 0.28),
+      phase: [r(0, 6.28), r(0, 6.28), r(0, 6.28)],
+      rotSpeed: [r(-0.35, 0.35), r(-0.35, 0.35), r(-0.25, 0.25)],
+      glass: i < 16,
+    };
+  });
 }
 
 function FloatingShard({
@@ -281,12 +280,12 @@ function FloatingShard({
     const iv = intensRef.current ?? 0;
     const sp = scrollRef.current ?? 0;
     const t = performance.now() * 0.001;
-    const speed = 0.40 + iv * 0.8;
+    const speed = 0.35 + iv * 0.7;
 
-    // Continuous multi-harmonic base drift
-    const dx = Math.sin(t * speed + cfg.phase[0]) * (0.45 + iv * 0.5);
-    const dy = Math.cos(t * speed * 0.85 + cfg.phase[1]) * (0.45 + iv * 0.5);
-    const dz = Math.sin(t * speed * 0.65 + cfg.phase[2]) * 0.30;
+    // Symmetrical multi-harmonic base drift
+    const dx = Math.sin(t * speed + cfg.phase[0]) * (0.35 + iv * 0.4);
+    const dy = Math.cos(t * speed * 0.85 + cfg.phase[1]) * (0.35 + iv * 0.4);
+    const dz = Math.sin(t * speed * 0.65 + cfg.phase[2]) * 0.25;
 
     // Scroll vertical parallax shift
     const scrollShiftY = sp * 4.0;
@@ -317,7 +316,7 @@ function FloatingShard({
     g.position.set(currX, currY, currZ);
 
     // Continuous rotation
-    const rMult = (1.2 + iv * 2.2) * dt;
+    const rMult = (1.1 + iv * 2.2) * dt;
     g.rotation.x += cfg.rotSpeed[0] * rMult;
     g.rotation.y += cfg.rotSpeed[1] * rMult;
     g.rotation.z += cfg.rotSpeed[2] * rMult;
@@ -441,7 +440,7 @@ function GlobalBackgroundScene() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Floating shard configurations
+  // Symmetrically distributed floating shard configurations
   const shards = useMemo(() => buildShardConfigs(36), []);
 
   return (
