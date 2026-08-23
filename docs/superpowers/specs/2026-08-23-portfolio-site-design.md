@@ -150,3 +150,68 @@ the bloom pass.
 - Deployment/hosting (Vercel, custom domain) — not requested
 - CMS/backend for content — all content is static, resume-sourced
 - Automated test suite — not warranted for a single-page static portfolio
+
+---
+
+## Amendment (2026-08-23): WebGL physics, spatial bento, hero rotator
+
+Supersedes the Hero and Case Studies sections above. Header, metrics strip,
+Skills, and Contact are unaffected.
+
+### Hero: typewriter rotator
+
+`HeroTextRotator` cycles a fixed base string — "I'm Arun Kumar Kulkarni, a
+senior software engineer building " — through four rotating phrases
+("production-grade backend APIs.", "multi-tenant cloud systems.",
+"resilient micro-frontends.", "full-stack SaaS products.") via a
+character-by-character type/delete loop. A `#00F5D4` caret pulses via CSS
+animation. CLS prevention: an invisible copy of the longest phrase reserves
+the container's box in normal layout flow; the visible animated text is
+absolutely positioned on top of it, so the footprint never changes as
+phrases cycle.
+
+### Hero: ThroughputRibbon (WebGL)
+
+`ThroughputRibbon` renders alongside the existing `ParticleField` in the
+same `Canvas` (additive, not a replacement) — a high-segment-count plane
+displaced by the shared curl-noise function (now exported from
+`shaders.ts` as `NOISE_GLSL` for reuse) plus a mouse-centered expanding
+ripple term. `uIntensity` from `SimulationModeProvider` scales wave
+velocity, curl turbulence, and bloom — the same single source of truth the
+particle field already uses. In stress mode, an HTML overlay (not
+in-canvas text, for crispness) renders:
+`[SIMULATING CONCURRENCY: 75 VIRTUAL USERS | 600 REQ/MIN | 0.00% ERRORS]`.
+
+### Case studies → Spatial Bento Gallery
+
+The previous 5 flat diff-tab cards and the standalone Projects section are
+replaced by a 4-module spatial bento gallery. HabitFlow moves into the
+gallery as its own module; the EF Core concurrency and multi-tenant
+isolation content folds into the Claims Web API module's visual breakdown
+rather than remaining separate cards.
+
+Tile rendering: CSS 3D tilt + cursor-follow light, not per-card WebGL glass
+(`GlassTile` — Framer Motion spring `rotateX`/`rotateY` driven by pointer
+position, plus a pointer-tracked radial-gradient sheen for the glass look).
+Chosen over true `MeshTransmissionMaterial` per-card WebGL because it keeps
+each tile's interactive DOM content (locale dropdown, diff view) as
+ordinary HTML instead of requiring a Canvas + environment map per card,
+and stays responsive/light on mobile.
+
+The four modules:
+
+1. **Claims Web API** (Altimetrik / WEX Health) — visual breakdown of the
+   five-level config merge hierarchy, the multi-tenant sharding path, and a
+   JMeter badge (4,061 samples, 0% errors, p95/p99).
+2. **Consumer Claims Micro-Frontend** (React 19) — interactive preview
+   toggling Direct Deposit vs. Check by Mail, with an 11-locale switcher.
+   The resume doesn't enumerate actual shipped locale strings, so the
+   switcher's translations are a small illustrative dictionary (2-3 UI
+   labels × 11 locale codes) written for this portfolio — same
+   "illustrative, not literal shipped copy" treatment as the case-study
+   diff snippets elsewhere in this spec.
+3. **Enterprise Security** — side-by-side diff tab, legacy raw
+   serialization vs. the centralized JSON serialization + HTML escaping
+   filter layer (reuses the existing `DiffViewer`/`DiffLine` machinery).
+4. **HabitFlow** — live product badge (Next.js, Convex, Clerk, Cloudflare)
+   with a direct launch action to tryhabitflow.com.
