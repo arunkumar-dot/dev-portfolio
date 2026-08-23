@@ -1067,70 +1067,179 @@ body {
 }
 
 /* ─── Claims Web API Tile ────────────────────────────────────────────────── */
-.config-levels { display: flex; flex-direction: column; gap: 6px; }
+.config-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.config-levels-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
 .config-levels-label {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  text-transform: uppercase;
 }
-.config-level-row {
+
+.config-levels-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--cyan);
+  background: rgba(0, 245, 212, 0.08);
+  border: 1px solid rgba(0, 245, 212, 0.2);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.config-levels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.config-level-pill {
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.config-level-pill:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.config-level-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--lvl-pct, 100%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--lvl-color) 16%, transparent) 0%, color-mix(in srgb, var(--lvl-color) 3%, transparent) 100%);
+  border-left: 3px solid var(--lvl-color);
+  pointer-events: none;
+}
+
+.config-level-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  gap: 8px;
+}
+
+.config-level-left {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
-.config-level-num {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  width: 20px;
-  flex-shrink: 0;
-}
-.config-level-bar {
-  height: 20px;
-  border-radius: 3px;
-  flex-shrink: 0;
-  transition: width 0.5s ease;
-}
-.config-level-name {
+
+.config-level-badge {
   font-family: var(--mono);
   font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.config-level-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.config-level-precedence {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
 }
 
 .jmeter-badge {
   background: var(--bg-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 12px 14px;
 }
+
+.jmeter-badge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .jmeter-badge-title {
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 10px;
 }
-.jmeter-stats { display: flex; gap: 20px; margin-bottom: 8px; }
-.jmeter-stat { display: flex; flex-direction: column; gap: 2px; }
+
+.jmeter-users-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.jmeter-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.jmeter-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .jmeter-stat-val {
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
 }
+
 .text-green { color: var(--green); }
+
 .jmeter-stat-key {
   font-family: var(--mono);
   font-size: 9px;
   color: var(--text-muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
+
 .jmeter-badge-meta {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-dim);
+  line-height: 1.4;
 }
 
 /* ─── Consumer MFE Tile ──────────────────────────────────────────────────── */

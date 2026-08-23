@@ -3,6 +3,14 @@
 import GlassTile from '@/components/GlassTile';
 import { CONFIG_MERGE_LEVELS, JMETER_STATS } from '@/lib/content';
 
+const PRECEDENCE_TAGS: Record<number, string> = {
+  1: 'Highest Priority',
+  2: 'Group Policy',
+  3: 'Admin Level',
+  4: 'Org Unit',
+  5: 'Base Default',
+};
+
 export default function ClaimsWebAPITile({
   onOpenCaseStudy,
 }: {
@@ -21,30 +29,50 @@ export default function ClaimsWebAPITile({
 
       {/* Five-level config hierarchy */}
       <div className="config-levels">
-        <div className="config-levels-label">5-Level Config Resolution (Per-Setting Merge)</div>
-        {CONFIG_MERGE_LEVELS.map((lv) => (
-          <div key={lv.level} className="config-level-row">
-            <span className="config-level-num" style={{ color: lv.color }}>
-              L{lv.level}
-            </span>
+        <div className="config-levels-header">
+          <span className="config-levels-label">5-Level Config Resolution</span>
+          <span className="config-levels-sub">Per-Setting Merge</span>
+        </div>
+
+        <div className="config-levels-list">
+          {CONFIG_MERGE_LEVELS.map((lv) => (
             <div
-              className="config-level-bar"
+              key={lv.level}
+              className="config-level-pill"
               style={{
-                width: `${55 + lv.level * 9}%`,
-                background: `linear-gradient(90deg, ${lv.color}33, ${lv.color}11)`,
-                borderLeft: `2px solid ${lv.color}`,
-              }}
-            />
-            <span className="config-level-name" style={{ color: lv.color }}>
-              {lv.name}
-            </span>
-          </div>
-        ))}
+                '--lvl-color': lv.color,
+                '--lvl-pct': `${100 - (lv.level - 1) * 11}%`,
+              } as React.CSSProperties}
+            >
+              <div className="config-level-bg" />
+              <div className="config-level-content">
+                <div className="config-level-left">
+                  <span
+                    className="config-level-badge"
+                    style={{ color: lv.color, borderColor: `${lv.color}40` }}
+                  >
+                    L{lv.level}
+                  </span>
+                  <span className="config-level-title" style={{ color: lv.color }}>
+                    {lv.name}
+                  </span>
+                </div>
+                <span className="config-level-precedence">
+                  {PRECEDENCE_TAGS[lv.level]}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* JMeter badge */}
       <div className="jmeter-badge">
-        <div className="jmeter-badge-title">JMeter Load Test @ 600 RPM (75 Users)</div>
+        <div className="jmeter-badge-header">
+          <span className="jmeter-badge-title">JMeter Load Test @ 600 RPM</span>
+          <span className="jmeter-users-tag">75 Virtual Users</span>
+        </div>
+
         <div className="jmeter-stats">
           <div className="jmeter-stat">
             <span className="jmeter-stat-val text-cyan">{JMETER_STATS.samples.toLocaleString()}</span>
