@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Arun Kumar Kulkarni — Senior Software Engineer",
   description:
-    "Portfolio of Arun Kumar Kulkarni — senior software engineer with 4+ years building production-grade .NET backends, React micro-frontends, and multi-tenant cloud systems.",
+    "Portfolio of Arun Kumar Kulkarni — senior software engineer with 4 years building production-grade .NET backends, React micro-frontends, and multi-tenant cloud systems.",
   keywords: [
     "Arun Kumar Kulkarni",
     "Senior Software Engineer",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Arun Kumar Kulkarni — Senior Software Engineer",
     description:
-      "4+ years · 0% load-test errors @ 600 RPM · 11 locales shipped. See the work.",
+      "4 years · 0% load-test error rate @ 600 RPM · 11 locales shipped. See the work.",
     type: "website",
   },
 };
