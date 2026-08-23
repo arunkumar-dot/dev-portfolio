@@ -29,13 +29,34 @@ void main() {
   vec3 p = aBasePos;
   
   float seed2 = aSeed * 6.28318;
-  float timeSpeed = 0.25 + uIntensity * 0.9;
+  float timeSpeed = 0.35 + uIntensity * 0.9;
   
+  // ── 0. Continuous Ambient Anti-Gravity Drift (Always Active) ─────────────
+  // Smooth, multi-frequency continuous motion independent of cursor & scroll
+  float tSlow = uTime * (0.40 + uIntensity * 0.45);
+  
+  float driftX = sin(tSlow * 0.75 + p.y * 0.32 + seed2) * 0.65 + 
+                 cos(tSlow * 0.45 + p.z * 0.48) * 0.35;
+  float driftY = cos(tSlow * 0.65 + p.x * 0.28 + seed2 * 1.35) * 0.75 + 
+                 sin(tSlow * 0.38 + p.z * 0.36) * 0.35;
+  float driftZ = sin(tSlow * 0.55 + p.x * 0.40 + p.y * 0.40) * 0.50;
+
+  p.x += driftX;
+  p.y += driftY;
+  p.z += driftZ;
+
+  // Subtle continuous orbital micro-rotation
+  float orbAngle = uTime * (0.04 + uIntensity * 0.08);
+  float cOrb = cos(orbAngle);
+  float sOrb = sin(orbAngle);
+  mat2 rotXZ = mat2(cOrb, -sOrb, sOrb, cOrb);
+  p.xz = rotXZ * p.xz;
+
   // ── 1. Hero Wave Dynamics (progress 0.0 -> 0.3) ───────────────────────────
-  float wave = sin(p.x * 0.35 + uTime * timeSpeed + seed2) * 
-               cos(p.y * 0.30 + uTime * 0.7 * timeSpeed) * (0.28 + uIntensity * 0.55);
+  float wave = sin(p.x * 0.32 + uTime * timeSpeed + seed2) * 
+               cos(p.y * 0.28 + uTime * 0.7 * timeSpeed) * (0.40 + uIntensity * 0.60);
   p.z += wave;
-  p.y += sin(uTime * 0.4 * timeSpeed + seed2) * 0.12;
+  p.y += sin(uTime * 0.52 * timeSpeed + seed2) * 0.28;
 
   // ── 2. Work Section Rotation & Grid Expansion (0.2 -> 0.65) ───────────────
   float workFactor = smoothstep(0.12, 0.38, uScrollProgress) * (1.0 - smoothstep(0.58, 0.78, uScrollProgress));
@@ -44,7 +65,7 @@ void main() {
   
   // ── 3. Case Studies Ambient Flow (0.45 -> 0.8) ─────────────────────────────
   float caseFactor = smoothstep(0.40, 0.60, uScrollProgress) * (1.0 - smoothstep(0.75, 0.92, uScrollProgress));
-  p.x += sin(uTime * 0.2 + p.y * 0.2) * caseFactor * 0.25;
+  p.x += sin(uTime * 0.35 + p.y * 0.25) * caseFactor * 0.35;
 
   // ── 4. Contact Section Focal Convergence (0.75 -> 1.0) ────────────────────
   float contactFactor = smoothstep(0.72, 0.98, uScrollProgress);
@@ -53,30 +74,30 @@ void main() {
 
   // ── 5. Stress Mode Telemetry Trails ───────────────────────────────────────
   if (uIntensity > 0.01) {
-    float upwardFlow = mod(uTime * (1.2 + uIntensity * 2.0) + aSeed * 14.0, 18.0) - 9.0;
-    p.y += uIntensity * upwardFlow * 0.22;
+    float upwardFlow = mod(uTime * (1.4 + uIntensity * 2.2) + aSeed * 14.0, 18.0) - 9.0;
+    p.y += uIntensity * upwardFlow * 0.26;
   }
 
   // ── 6. Global Interactive Cursor Repulsion Ripple ─────────────────────────
   vec2 diff = p.xy - uMouse;
   float dist = length(diff);
-  float repRadius = 3.2 + uIntensity * 1.5;
+  float repRadius = 3.4 + uIntensity * 1.6;
   if (dist < repRadius && dist > 0.01) {
     float force = pow((repRadius - dist) / repRadius, 2.0);
     p.xy += (diff / dist) * force * (1.1 + uIntensity * 1.2);
-    p.z += force * 0.5;
+    p.z += force * 0.55;
   }
 
-  // ── Alpha Computation (pin-sharp opacity control) ─────────────────────────
-  float baseAlpha = 0.22 + 0.42 * sin(seed2 + uTime * 0.6);
-  vAlpha = baseAlpha * (0.55 + uIntensity * 0.45);
+  // ── Alpha Computation (pin-sharp opacity control with breathing) ──────────
+  float baseAlpha = 0.24 + 0.44 * sin(seed2 + uTime * 0.75);
+  vAlpha = baseAlpha * (0.58 + uIntensity * 0.42);
 
   vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mvPosition;
 
-  // Ultra-fine pin-sharp point size (1.5 - 2.8px)
-  float pSize = (1.6 + uIntensity * 1.2) * (200.0 / max(1.0, -mvPosition.z)) * min(uDpr, 1.75);
-  gl_PointSize = clamp(pSize, 1.2, 3.4);
+  // Ultra-fine pin-sharp point size (1.5 - 3.2px)
+  float pSize = (1.7 + uIntensity * 1.3) * (200.0 / max(1.0, -mvPosition.z)) * min(uDpr, 1.75);
+  gl_PointSize = clamp(pSize, 1.2, 3.5);
 }
 `;
 
@@ -97,7 +118,7 @@ void main() {
   float alpha = smoothstep(0.5, 0.06, dist) * vAlpha;
   
   // Hard clamp to ensure background never overwhelms foreground typography
-  alpha = clamp(alpha, 0.0, 0.42);
+  alpha = clamp(alpha, 0.0, 0.44);
 
   // Dynamic Theme Colors
   vec3 amberGold  = vec3(0.961, 0.620, 0.043);
@@ -260,12 +281,12 @@ function FloatingShard({
     const iv = intensRef.current ?? 0;
     const sp = scrollRef.current ?? 0;
     const t = performance.now() * 0.001;
-    const speed = 0.25 + iv * 0.7;
+    const speed = 0.40 + iv * 0.8;
 
-    // Base drift
-    const dx = Math.sin(t * speed + cfg.phase[0]) * (0.2 + iv * 0.4);
-    const dy = Math.cos(t * speed * 0.8 + cfg.phase[1]) * (0.2 + iv * 0.4);
-    const dz = Math.sin(t * speed * 0.6 + cfg.phase[2]) * 0.15;
+    // Continuous multi-harmonic base drift
+    const dx = Math.sin(t * speed + cfg.phase[0]) * (0.45 + iv * 0.5);
+    const dy = Math.cos(t * speed * 0.85 + cfg.phase[1]) * (0.45 + iv * 0.5);
+    const dz = Math.sin(t * speed * 0.65 + cfg.phase[2]) * 0.30;
 
     // Scroll vertical parallax shift
     const scrollShiftY = sp * 4.0;
@@ -280,7 +301,7 @@ function FloatingShard({
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
       const dist = Math.hypot(currX - mx, currY - my);
-      const repRad = 3.0 + iv * 1.5;
+      const repRad = 3.2 + iv * 1.5;
       if (dist < repRad && dist > 0.02) {
         const force = Math.pow((repRad - dist) / repRad, 2) * (2.8 + iv * 3.5);
         vel.current.x += ((currX - mx) / dist) * force * dt * 4;
@@ -296,7 +317,7 @@ function FloatingShard({
     g.position.set(currX, currY, currZ);
 
     // Continuous rotation
-    const rMult = (1.0 + iv * 2.2) * dt;
+    const rMult = (1.2 + iv * 2.2) * dt;
     g.rotation.x += cfg.rotSpeed[0] * rMult;
     g.rotation.y += cfg.rotSpeed[1] * rMult;
     g.rotation.z += cfg.rotSpeed[2] * rMult;
