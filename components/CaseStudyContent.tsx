@@ -64,10 +64,32 @@ export function ArchFlow({ cs }: { cs: CaseStudy }) {
 
 // ─── Code Diff Viewer ─────────────────────────────────────────────────────────
 export function DiffPanel({ diff }: { diff: CaseStudy['diff'] }) {
+  const [isStacked, setIsStacked] = useState(false);
+
   return (
     <div className="cs-diff-wrap">
-      {diff.legend && <p className="cs-diff-legend">// {diff.legend}</p>}
-      <div className="cs-diff-grid">
+      <div className="cs-diff-header-bar">
+        {diff.legend && <p className="cs-diff-legend">// {diff.legend}</p>}
+        <div className="cs-diff-view-toggle" role="group" aria-label="Diff view layout">
+          <button
+            type="button"
+            className={`cs-diff-toggle-btn ${!isStacked ? 'cs-diff-toggle-btn--active' : ''}`}
+            onClick={() => setIsStacked(false)}
+            aria-pressed={!isStacked}
+          >
+            Split
+          </button>
+          <button
+            type="button"
+            className={`cs-diff-toggle-btn ${isStacked ? 'cs-diff-toggle-btn--active' : ''}`}
+            onClick={() => setIsStacked(true)}
+            aria-pressed={isStacked}
+          >
+            Stacked
+          </button>
+        </div>
+      </div>
+      <div className={`cs-diff-grid ${isStacked ? 'cs-diff-grid--stacked' : ''}`}>
         <div className="cs-diff-col cs-diff-col--before">
           <div className="cs-diff-col-header">
             <span className="cs-diff-pill cs-diff-pill--before">LEGACY / BEFORE</span>
