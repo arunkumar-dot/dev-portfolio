@@ -9,70 +9,91 @@ export const METRICS = [
 // ─── Skills (Aligned 100% with Resume & Genuine Work) ────────────────────────
 
 export const SKILLS: Record<string, string[]> = {
-  "Languages & Core": [
+  "Languages": [
     "C#",
     "TypeScript",
     "JavaScript",
     "SQL (T-SQL)",
-    "Python (in progress)",
+    "Python (learning)",
   ],
-  "Backend & APIs": [
+  "Backend": [
     "ASP.NET Core",
-    ".NET Framework / WCF",
-    "RESTful APIs",
-    "GraphQL",
-    "MediatR (CQRS)",
+    ".NET Framework",
+    "Web API",
+    "WCF",
     "Entity Framework Core",
-    "Microservices",
+    "ADO.NET",
+    "GraphQL",
+    "Node.js",
+    "Hono",
   ],
-  "Frontend & UI": [
-    "React",
-    "Next.js",
-    "TypeScript",
-    "Tailwind CSS",
-    "HTML5 / Modern CSS",
-  ],
-  "Mobile & Cross-Platform": [
-    "Xamarin / .NET MAUI",
-    "MVVM Architecture",
-  ],
-  "Databases & Caching": [
-    "SQL Server (Stored Procedures)",
-    "PostgreSQL",
-    "Redis",
-    "Convex",
-    "SQLite",
-  ],
-  "Cloud & DevOps": [
-    "Microsoft Azure",
-    "Azure DevOps",
-    "Vercel Edge",
-    "Cloudflare",
-    "Agile / Scrum",
-  ],
-  "Architecture & Design": [
-    "CQRS Pattern",
+  "Frontend": [
+    "React 19",
+    "Vite",
     "Micro-Frontends",
-    "Multi-Tenant Systems",
-    "BullMQ Job Queues",
-    "Feature Flags",
+    "Next.js",
+    "Design Systems",
+    "i18n",
+    "Figma-to-Production",
   ],
-  "Testing & Quality": [
+  "Architecture": [
+    "Microservices",
+    "Clean Architecture",
+    "CQRS / MediatR",
+    "REST API Design",
+    "BFF & Strangler Fig Patterns",
+    "Multi-Tenant Data Isolation",
+  ],
+  "Testing": [
     "xUnit",
     "Moq",
     "Vitest",
     "React Testing Library",
-    "Pact Contract Testing",
-    "JMeter (Load Testing)",
+    "Contract Testing (Pact)",
+    "Load Testing (JMeter)",
+    "ReadyAPI",
+    "Regression Testing",
   ],
-  "Security & Auth": [
+  "Security": [
     "OAuth 2.0 / OIDC + PKCE",
     "JWT",
     "XSS Remediation",
-    "HTML Serialization Escaping",
+    "OWASP",
+    "Penetration Test Response",
   ],
-  "Observability": [
+  "Databases": [
+    "SQL Server",
+    "Stored Procedures",
+    "Query Optimization",
+    "Sharded / Multi-Tenant Contexts",
+    "PostgreSQL",
+    "Redis",
+    "pgvector",
+    "SQLite",
+    "Convex",
+  ],
+  "Cloud & Tooling": [
+    "Microsoft Azure",
+    "Azure DevOps",
+    "Git",
+    "Visual Studio",
+    "OpenAPI/NSwag",
     "Splunk",
+    "Docker Compose",
+    "pnpm",
+  ],
+  "Mobile": [
+    "Xamarin.Forms",
+    ".NET MAUI",
+    "MVVM",
+    "Firebase",
+  ],
+  "Practices": [
+    "Agile/Scrum",
+    "Feature Flags",
+    "Load & Performance Analysis",
+    "Production Debugging",
+    "AI-assisted Development (Cursor, Augment)",
   ],
 };
 
@@ -84,30 +105,39 @@ export interface ExperienceEntry {
   client: string;
   dates: string;
   location: string;
-  lines: [string, string];
+  lines: string[];
 }
 
 export const EXPERIENCE_DATA: ExperienceEntry[] = [
   {
     title: "Senior Software Engineer",
-    company: "Altimetrik India",
-    client: "US health benefits and claims platform (FSA/HSA/HRA)",
+    company: "Altimetrik India (Contractor — WEX Health)",
+    client: "Modern Benefits Platform | Claims Web API & Consumer Claims Micro-Frontend | FSA/HSA/HRA Consumer-Directed Accounts",
     dates: "Apr 2025 – Present",
-    location: "Bengaluru",
+    location: "Bengaluru, India",
     lines: [
-      "Leading participant-facing eligibility engine modernisation from legacy stored-procedure pipelines to ASP.NET Core CQRS with a stateless rules engine.",
-      "Designed and load-tested a 5-level configuration resolution hierarchy; caught a p95 regression pre-QA via JMeter at 600 RPM.",
+      "Designed and shipped a participant-facing claim filing-eligibility API to production spanning controller, CQRS query handler, orchestration service, side-effect-free rules engine, and stored-procedure settings repository with OpenAPI client.",
+      "Implemented five-level configuration resolution with per-setting merge semantics falling back from specific scope to global defaults; scoped 4 of 7 checks out to preserve bounded contexts.",
+      "Diagnosed EF Core DbContext thread-safety failures under parallel execution; fixed 6 behavioral divergences from legacy pre-PR and locked in with regression tests.",
+      "Strengthened multi-tenant query scoping, tenant-isolation boundaries, and hardened database shard resolution across receipt-download and claim-filing paths.",
+      "Authored JMeter load tests at 75 concurrent users and 600 RPM: measured p95 of 3.3s and p99 of 4.2s across 4,061 samples at 0% errors against a 2s QA SLA.",
+      "Delivered Consumer Claims transfer-method MFE (React 19, TypeScript, Vite) replacing wizard step with review dialog across 11 locales with Vitest & RTL test suite.",
+      "Remediated critical XSS vulnerability across 4 legacy WCF services with custom JSON serialization HTML escaping and feature flag rollout.",
+      "Delivered HSA investment onboarding custom text end to end across legacy .NET Framework strangler service and .NET Core BFF fronting it; validated in ReadyAPI.",
     ],
   },
   {
     title: "Project Engineer",
-    company: "Wipro Ltd",
-    client: "FedEx Australia",
+    company: "Wipro Ltd (Client: FedEx Australia)",
+    client: "Cross-Platform Mobile Engineer | Courier Express Platform",
     dates: "Jul 2022 – Apr 2025",
-    location: "Bengaluru",
+    location: "Bengaluru, India",
     lines: [
-      "Built cross-platform courier mobile features in Xamarin.Forms / .NET MAUI with MVVM architecture and offline SQLite persistence.",
-      "Authored standardised REST API contracts for Android and iOS teams; awarded the Panache Best Newcomer Award within two months of joining.",
+      "Developed and maintained cross-platform mobile features for courier and express logistics application using C#, .NET, Xamarin.Forms, and .NET MAUI with MVVM architecture and SQLite local persistence.",
+      "Integrated RESTful APIs over HTTPS and analysed request/response contracts and application flows across the codebase to support feature delivery and defect investigation.",
+      "Wrote and optimized SQL queries for data retrieval and reporting, reducing redundant database calls and improving application responsiveness.",
+      "Performed unit testing and debugging across multiple app modules in an Agile/Scrum environment, resolving defects ahead of release.",
+      "Recognized with the Panache Best Newcomer Award for independently resolving complex design-flow issues within two months of joining.",
     ],
   },
 ];
@@ -125,9 +155,9 @@ export interface EducationEntry {
 export const EDUCATION_DATA: EducationEntry[] = [
   {
     icon: "🎓",
-    title: "B.Tech Electronics and Communication Engineering",
+    title: "B.Tech — Electronics and Communication Engineering",
     institution: "PES University",
-    year: "2019–2022",
+    year: "2019 – 2022",
     type: "degree",
   },
   {
@@ -144,12 +174,21 @@ export const EDUCATION_DATA: EducationEntry[] = [
     year: "2022",
     type: "award",
   },
+  {
+    icon: "🎖️",
+    title: "Scouts & Guides Rashtrapati (President's) & Rajyapuraskar (Governor's) Awards",
+    institution: "The Bharat Scouts and Guides",
+    year: "",
+    type: "award",
+  },
 ];
 
 // ─── Contact ─────────────────────────────────────────────────────────────────
 
 export const CONTACT = {
   email: "arunkulkarni2000@gmail.com",
+  phone: "+91 8152807847",
+  location: "Bengaluru, Karnataka, India",
   github: "arunkumar-dot",
   linkedin: "arun-kulkarni226",
 };

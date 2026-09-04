@@ -107,6 +107,27 @@ export default function Contact() {
             </button>
           </div>
 
+          {/* Location & Phone command */}
+          <div className="terminal-line mt-4">
+            <span className="terminal-prompt">$ </span>
+            <span className="text-cyan">contact</span>
+            <span className="text-dim"> --location</span>
+          </div>
+          <div className="terminal-output">
+            <span>📍 {CONTACT.location}</span>
+          </div>
+
+          <div className="terminal-line mt-4">
+            <span className="terminal-prompt">$ </span>
+            <span className="text-cyan">contact</span>
+            <span className="text-dim"> --phone</span>
+          </div>
+          <div className="terminal-output">
+            <a href={`tel:${CONTACT.phone.replace(/\s+/g, '')}`} className="terminal-link">
+              {CONTACT.phone}
+            </a>
+          </div>
+
           {/* GitHub profile command */}
           <div className="terminal-line mt-4">
             <span className="terminal-prompt">$ </span>
