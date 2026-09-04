@@ -20,7 +20,6 @@ const GH_FEATURED_IDS = [
   'rag-document-assistant',
   'hn-scraper',
   'distributed-ledger',
-  'paytm-clone',
 ];
 
 export default function Contact() {

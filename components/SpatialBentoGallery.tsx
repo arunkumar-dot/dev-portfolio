@@ -25,7 +25,6 @@ const GH_PROJECT_IDS = [
   'rag-document-assistant',
   'hn-scraper',
   'distributed-ledger',
-  'paytm-clone',
 ];
 
 export default function SpatialBentoGallery() {
@@ -111,7 +110,6 @@ export default function SpatialBentoGallery() {
                       {proj.id === 'rag-document-assistant' && '🤖 AI & Vector Search'}
                       {proj.id === 'hn-scraper' && '⚡ Distributed Queues'}
                       {proj.id === 'distributed-ledger' && '⛓️ Cryptography & P2P'}
-                      {proj.id === 'paytm-clone' && '💳 Fintech & ACID DB'}
                     </span>
                     <span className="project-metric-pill" style={{ color: proj.metrics[0]?.color }}>
                       {proj.metrics[0]?.value}
