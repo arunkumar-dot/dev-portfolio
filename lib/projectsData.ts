@@ -179,80 +179,76 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
   },
 
-  // ── 2. RAG Document Assistant (GitHub: rag-document-assistant) ───────────────
+  // ── 2. Lumen — Local-First Document Q&A API (GitHub: rag-document-assistant) ───
   {
     id: "rag-document-assistant",
     tileId: "rag-document-assistant",
     tag: "GitHub Project · github.com/arunkumar-dot/rag-document-assistant",
-    title: "RAG Document Assistant",
+    title: "Lumen — Local-First Document Q&A API",
     subtitle:
-      "Document intelligence & retrieval-augmented generation engine with vector embeddings and grounded citations",
+      "Retrieval-augmented document Q&A with inference running locally on Ollama and vectors in Supabase pgvector — no cloud LLM keys required.",
     stack: [
       "TypeScript",
+      "Hono",
+      "Ollama",
+      "Supabase pgvector",
+      "unpdf",
       "Next.js",
-      "LangChain",
-      "Vector Embeddings (HNSW)",
-      "LLM Synthesis",
     ],
     overview: {
       context:
-        "Engineered an end-to-end Retrieval-Augmented Generation (RAG) pipeline enabling users to upload multi-format documents (PDF, DOCX, TXT), generate vector embeddings, and query information via LLMs with verifiable source citations.",
+        "A REST API that ingests a PDF, embeds its chunks into a vector store, and answers questions against it with a streamed, grounded response.",
       problem:
-        "Raw LLM prompts suffer from context window limits and hallucination when answering document-specific queries. Naive text splitting leads to lost cross-sentence context and fragmented chunks.",
+        "Document Q&A usually means shipping private documents to a third-party LLM API and paying per token. I wanted the whole pipeline to run against a local model so the documents never leave the machine, and to see what that costs in retrieval quality.",
       solution:
-        "Implemented recursive character chunking with sliding overlaps (500 tokens / 50 overlap), vector similarity search over dense embeddings, and contextual prompt injection with confidence scoring.",
+        "Hono API on Node with bearer API-key auth. PDF text extracted with unpdf, split into 500-character chunks with 50-character overlap, embedded through Ollama nomic-embed-text and stored in Supabase pgvector. Queries embed the question, retrieve the top 5 matching chunks via a Postgres match_chunks function, and stream the answer token by token from a local llama3.1:8b.",
       outcome:
-        "Reliable semantic retrieval across complex documentation, grounded answer synthesis with page-level citations, and fallback refusal on irrelevant queries.",
+        "Working end to end with zero cloud LLM spend. The system prompt constrains the model to the retrieved context and instructs it to answer 'I don't have enough information' rather than speculate when retrieval returns nothing useful.",
     },
     arch: {
-      title: "RAG Ingestion & Query Synthesis Pipeline",
+      title: "Local-First RAG Pipeline",
       steps: [
         {
-          label: "Document Parser",
-          sub: "Extracts text & structural metadata from PDFs/DOCX",
+          label: "Hono API",
+          sub: "Bearer API-key auth; /ingestDocuments, /query, /health",
           variant: "secondary",
         },
         {
-          label: "Recursive Semantic Chunking",
-          sub: "Sliding window tokenization with context preservation",
+          label: "PDF Extraction & Chunking",
+          sub: "unpdf text extraction, 500/50 fixed-window chunks",
           variant: "primary",
         },
         {
-          label: "Embedding Generator",
-          sub: "Dense vector creation (1536 dimensions)",
+          label: "Ollama Embeddings",
+          sub: "nomic-embed-text, 768-dim vectors",
+          variant: "primary",
+        },
+        {
+          label: "Supabase pgvector + Streaming LLM",
+          sub: "top-5 retrieval, llama3.1:8b streamed via Hono",
           variant: "accent",
-        },
-        {
-          label: "Vector Database Index",
-          sub: "Hierarchical Navigable Small World (HNSW) search",
-          variant: "primary",
-        },
-        {
-          label: "Contextual LLM Generator",
-          sub: "Synthesizes answers with strict grounded citations",
-          variant: "secondary",
         },
       ],
       decisions: [
         {
-          heading: "Sliding-Window Chunking Strategy",
+          heading: "Local Inference Over Hosted APIs",
           detail:
-            "Configured 500-token chunk windows with a 10% overlap to preserve semantic continuity across paragraph boundaries, preventing fragmented search results.",
+            "Embeddings and generation both run on Ollama on the host machine. Documents never leave it and there is no per-token cost, at the price of slower generation and a smaller model than a hosted frontier API.",
         },
         {
-          heading: "Cosine Similarity Threshold Filtering",
+          heading: "Grounded-Refusal Prompting",
           detail:
-            "Filtered out vector matches below confidence thresholds to prevent hallucination from irrelevant passages, returning a grounded refusal when no matching context exists.",
+            "The system prompt restricts the model to the retrieved context and directs it to state that it lacks the information rather than fill the gap. A refusal is the correct output when retrieval misses.",
         },
         {
-          heading: "Strict Citation Prompt Invariants",
+          heading: "Token Streaming Through the API Layer",
           detail:
-            "Engineered system prompts enforcing explicit citation brackets `[Page X]` and rejecting out-of-context speculation.",
+            "The query endpoint streams Ollama's response through Hono's streaming helper so the client renders tokens as they arrive instead of waiting for the full generation.",
         },
       ],
     },
     diff: {
-      legend: "Naive full-text prompt stuffing vs. Vector RAG contextual synthesis",
+      legend: "Sending the whole document to the model vs. retrieving the top-5 chunks first",
       before: [
         "// ❌ Naive prompt stuffing — exceeds context limit & hallucinates",
         "async function queryDocument(docText: string, question: string) {",
@@ -262,38 +258,41 @@ export const PROJECTS_DATA: CaseStudy[] = [
         "}",
       ],
       after: [
-        "// ✅ RAG pipeline: vector similarity search + grounded context synthesis",
-        "async function queryDocumentRAG(vectorStore: VectorDB, question: string) {",
-        "  const qEmbedding = await embedder.embedQuery(question);",
-        "  const topChunks = await vectorStore.similaritySearch(qEmbedding, { k: 4, minScore: 0.72 });",
-        "  const context = topChunks.map(c => `[P.${c.metadata.page}]: ${c.text}`).join('\\n\\n');",
-        "  return await llm.generate(buildGroundedPrompt(context, question));",
-        "}",
+        "// ✅ Local RAG: embed query, top-5 Supabase vector match, stream Ollama response",
+        "const queryEmbedding = await getEmbedding(question);",
+        "const { data: chunks } = await supabase.rpc('match_chunks', {",
+        "  query_embedding: queryEmbedding,",
+        "  query_text: question,",
+        "  match_count: 5,",
+        "});",
+        "const contextTexts = (chunks || []).map((c) => c.raw_text);",
+        "const stream = await generateStream(question, contextTexts);",
+        "return streamText(c, stream);",
       ],
     },
     metrics: [
       {
-        label: "Vector Indexing",
-        value: "HNSW",
-        sub: "dense vector embeddings",
+        label: "Inference",
+        value: "Fully Local",
+        sub: "Ollama, no cloud LLM keys",
         color: "#00f5d4",
       },
       {
-        label: "Chunking Mode",
-        value: "Recursive",
-        sub: "sliding window overlap",
+        label: "Embeddings",
+        value: "768-dim",
+        sub: "nomic-embed-text",
         color: "#22c55e",
       },
       {
-        label: "Retrieval Mode",
-        value: "Cosine Top-K",
-        sub: "similarity filtering",
+        label: "Retrieval",
+        value: "Top-5 Chunks",
+        sub: "Supabase pgvector",
         color: "#818cf8",
       },
       {
-        label: "Synthesis",
-        value: "Grounded",
-        sub: "page-level citations",
+        label: "Response",
+        value: "Token Streaming",
+        sub: "streamed through Hono",
         color: "#f59e0b",
       },
     ],
@@ -437,135 +436,6 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
   },
 
-  // ── 4. Distributed Ledger Engine (GitHub: distributed_ledger) ───────────────
-  {
-    id: "distributed-ledger",
-    tileId: "distributed-ledger",
-    tag: "GitHub Project · github.com/arunkumar-dot/distributed_ledger",
-    title: "Distributed Ledger Engine",
-    subtitle:
-      "Cryptographically verifiable blockchain ledger with SHA-256 block hashing and peer gossip synchronization",
-    stack: [
-      "TypeScript",
-      "Cryptography (SHA-256)",
-      "P2P Gossip Protocol",
-      "Merkle Trees",
-      "Node.js",
-    ],
-    overview: {
-      context:
-        "Implemented a distributed immutable ledger exploring cryptographic chain integrity, Merkle tree transaction proofs, and peer-to-peer consensus reconciliation across distributed nodes.",
-      problem:
-        "Ensuring state consistency across independent nodes without centralized coordination requires tamper-evident transaction verification and deterministic consensus mechanisms.",
-      solution:
-        "Engineered an append-only cryptographic block structure using SHA-256 proof generation, dynamic difficulty adjustment, Merkle root verification, and peer gossip state reconciliation.",
-      outcome:
-        "Verified tamper-evident state verification, deterministic block validation, and peer chain reorganization.",
-    },
-    arch: {
-      title: "Cryptographic Block & Consensus Pipeline",
-      steps: [
-        {
-          label: "Transaction Mempool",
-          sub: "Validates signatures & queues pending records",
-          variant: "secondary",
-        },
-        {
-          label: "Merkle Tree Generator",
-          sub: "Computes binary hash tree root for block transactions",
-          variant: "accent",
-        },
-        {
-          label: "Proof Engine (SHA-256)",
-          sub: "Deterministic hashing with difficulty target",
-          variant: "primary",
-        },
-        {
-          label: "Block Serialization & Chaining",
-          sub: "Links previous hash with cryptographic immutability",
-          variant: "primary",
-        },
-        {
-          label: "P2P Gossip Synchronizer",
-          sub: "Broadcasts new blocks and reconciles longest-chain fork",
-          variant: "secondary",
-        },
-      ],
-      decisions: [
-        {
-          heading: "Merkle Root Verification",
-          detail:
-            "Transaction lists are committed into a Merkle root hash, allowing O(log N) verification of transaction inclusion.",
-        },
-        {
-          heading: "Immutable Block Validation",
-          detail:
-            "Every block validates `previousHash` integrity and recomputes the SHA-256 hash before accepting a peer chain broadcast.",
-        },
-        {
-          heading: "Longest-Chain Consensus Rule",
-          detail:
-            "Implemented automatic chain reorganization (reorg) when a peer node broadcasts a valid longer verified chain.",
-        },
-      ],
-    },
-    diff: {
-      legend: "Mutable array ledger vs. Cryptographic SHA-256 chained block verification",
-      before: [
-        "// ❌ Mutable array store — no tamper verification or proof-of-integrity",
-        "class NaiveLedger {",
-        "  private entries: any[] = [];",
-        "  addEntry(data: any) {",
-        "    this.entries.push({ data, timestamp: Date.now() }); // Can be mutated!",
-        "  }",
-        "}",
-      ],
-      after: [
-        "// ✅ Immutable block with SHA-256 hash chaining and Merkle verification",
-        "class Block {",
-        "  public hash: string;",
-        "  constructor(public index: number, public prevHash: string, public merkleRoot: string, public nonce: number) {",
-        "    this.hash = this.calculateHash();",
-        "  }",
-        "  calculateHash(): string {",
-        "    return crypto.createHash('sha256').update(`${this.index}${this.prevHash}${this.merkleRoot}${this.nonce}`).digest('hex');",
-        "  }",
-        "}",
-      ],
-    },
-    metrics: [
-      {
-        label: "Cryptography",
-        value: "SHA-256",
-        sub: "block hash chaining",
-        color: "#00f5d4",
-      },
-      {
-        label: "Verification",
-        value: "Merkle Tree",
-        sub: "binary hash inclusion proofs",
-        color: "#22c55e",
-      },
-      {
-        label: "Data Model",
-        value: "Append-Only",
-        sub: "tamper-evident log",
-        color: "#818cf8",
-      },
-      {
-        label: "Consensus",
-        value: "Longest-Chain",
-        sub: "P2P fork resolution",
-        color: "#f59e0b",
-      },
-    ],
-    links: [
-      {
-        label: "Source Code (github.com/arunkumar-dot/distributed_ledger) ↗",
-        url: "https://github.com/arunkumar-dot/distributed_ledger",
-      },
-    ],
-  },
 
 
   // ── 6. Courier & Express Logistics Platform (Wipro / FedEx Australia) ───────

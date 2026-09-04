@@ -20,11 +20,9 @@ const TILE_VARIANTS: Variants = {
   },
 };
 
-// IDs of open-source GitHub projects to showcase under HabitFlow
 const GH_PROJECT_IDS = [
   'rag-document-assistant',
   'hn-scraper',
-  'distributed-ledger',
 ];
 
 export default function SpatialBentoGallery() {
@@ -87,7 +85,7 @@ export default function SpatialBentoGallery() {
             Featured <span className="text-cyan">Projects</span>
           </h3>
           <p className="projects-showcase-sub">
-            Open-source vector RAG systems, distributed scrapers, cryptographic ledgers, and atomic transaction engines.
+            Open-source local document Q&A and distributed queue-based scrapers.
           </p>
         </div>
 
@@ -109,7 +107,6 @@ export default function SpatialBentoGallery() {
                     <span className="tile-tag">
                       {proj.id === 'rag-document-assistant' && '🤖 AI & Vector Search'}
                       {proj.id === 'hn-scraper' && '⚡ Distributed Queues'}
-                      {proj.id === 'distributed-ledger' && '⛓️ Cryptography & P2P'}
                     </span>
                     <span className="project-metric-pill" style={{ color: proj.metrics[0]?.color }}>
                       {proj.metrics[0]?.value}

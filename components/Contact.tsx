@@ -19,7 +19,6 @@ interface GitHubProfile {
 const GH_FEATURED_IDS = [
   'rag-document-assistant',
   'hn-scraper',
-  'distributed-ledger',
 ];
 
 export default function Contact() {
