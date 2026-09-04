@@ -985,29 +985,28 @@ export const PROJECTS_DATA: CaseStudy[] = [
       "Vite",
       "Vitest",
       "React Testing Library",
-      "Webpack Module Federation",
     ],
     overview: {
       context:
-        "The consumer claims portal's reimbursement selection flow was a legacy 4-step wizard requiring multiple page transitions to choose between Direct Deposit and Check-by-Mail, causing high mobile abandonment.",
+        "The consumer claims portal's reimbursement selection flow was a dedicated wizard step in the reimbursement flow to choose between Direct Deposit and Check-by-Mail.",
       problem:
-        "Multi-step wizard UX increased drop-off rates on mobile devices; tight coupling to the monorepo shell prevented independent deployments; missing internationalization support across global participant bases.",
+        "Dedicated wizard step in the reimbursement flow; missing internationalization support across global participant bases.",
       solution:
-        "Replaced the wizard with a unified review-stage payout selector dialog. Built the MFE with React, TypeScript, and Module Federation. Shipped internationalized copy across 11 locales.",
+        "Replaced the dedicated wizard step with a review-stage dialog for choosing direct deposit or check by mail, collapsing the payout path to a single confirmation surface. Built with React 19, TypeScript and Vite.",
       outcome:
-        "Reduced user click path from 8 to 2 steps. Shipped 11 localized languages with full Vitest test suite coverage and independent zero-downtime deployment capability.",
+        "Shipped to production with internationalized copy across 11 locales and a Vitest / React Testing Library suite covering selection behaviour, API states and formatting helpers.",
     },
     arch: {
-      title: "Module Federation Micro-Frontend Architecture",
+      title: "Review-Stage Dialog Architecture",
       steps: [
         {
-          label: "Shell Host Application",
-          sub: "Module Federation container shell",
+          label: "Consumer Claims Shell",
+          sub: "Host application review flow",
           variant: "secondary",
         },
         {
           label: "Claims MFE Remote",
-          sub: "Vite bundle with independent CI/CD pipeline",
+          sub: "Vite bundle",
           variant: "primary",
         },
         {
@@ -1023,14 +1022,14 @@ export const PROJECTS_DATA: CaseStudy[] = [
       ],
       decisions: [
         {
-          heading: "Single-Stage Review Dialog",
+          heading: "Review-Stage Confirmation Dialog",
           detail:
-            "Replaced 4 wizard navigation pages with a modal dialog containing optimistic state transitions, eliminating back-button failures and reducing user interaction steps.",
+            "Replaced the dedicated wizard step with a review-stage dialog for choosing direct deposit or check by mail, collapsing the payout path to a single confirmation surface.",
         },
         {
-          heading: "Module Federation Deployment Decoupling",
+          heading: "Bank-Accounts BFF Integration",
           detail:
-            "Decoupled the micro-frontend from the monolith release cycle, enabling zero-downtime independent deployments and isolated dependency management.",
+            "Integrated the bank-accounts BFF API including mailing-address retrieval and active / direct-deposit filtering, and reviewed the upstream GraphQL contract against micro-frontend requirements to flag gaps ahead of implementation.",
         },
         {
           heading: "11-Locale Runtime Internationalization",
@@ -1040,13 +1039,12 @@ export const PROJECTS_DATA: CaseStudy[] = [
       ],
     },
     diff: {
-      legend: "Multi-route wizard navigation vs. declarative single dialog state machine",
+      legend: "Dedicated wizard step vs. review-stage confirmation dialog",
       before: [
-        "// ❌ Multi-step wizard across 4 routes with mutable state store",
+        "// ❌ Dedicated wizard step requiring navigation away from review",
         "const wizard = useWizardStore();",
-        "// /select-method -> /enter-bank-details -> /verify-micro-deposits -> /confirm",
-        "// Full page reloads, back-button race conditions, 8 total clicks",
-        "router.push('/transfer/select-method');",
+        "// Payout method selected on a separate route before review",
+        "router.push('/reimbursement/transfer-method');",
       ],
       after: [
         "// ✅ Declarative review dialog — local state machine with zero route jumps",
@@ -1067,15 +1065,15 @@ export const PROJECTS_DATA: CaseStudy[] = [
         color: "#00f5d4",
       },
       {
-        label: "Flow Simplification",
-        value: "4 → 1 Step",
-        sub: "unified review dialog",
+        label: "Accessibility",
+        value: "Radio-Select Cards",
+        sub: "loading, empty and error states",
         color: "#22c55e",
       },
       {
-        label: "Interaction Path",
-        value: "8 → 2 Clicks",
-        sub: "reduced user friction",
+        label: "API Integration",
+        value: "Bank-Accounts BFF",
+        sub: "address retrieval + direct-deposit filtering",
         color: "#f59e0b",
       },
       {
@@ -1087,7 +1085,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     links: [
       {
-        label: "LinkedIn Experience Verification ↗",
+        label: "LinkedIn ↗",
         url: "https://linkedin.com/in/arun-kulkarni226",
       },
     ],
