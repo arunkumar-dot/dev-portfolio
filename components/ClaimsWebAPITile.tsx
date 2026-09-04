@@ -22,7 +22,7 @@ export default function ClaimsWebAPITile({
       onClick={() => onOpenCaseStudy?.('claims')}
     >
       <div className="tile-header">
-        <span className="tile-tag">Health Benefits & Claims Platform</span>
+        <span className="tile-tag">Health Benefits &amp; Claims Platform</span>
         <h3 className="tile-title">Claims Web API</h3>
         <p className="tile-subtitle">ASP.NET Core · C# · MediatR CQRS · SQL Server · Multi-Tenant</p>
       </div>
@@ -66,33 +66,33 @@ export default function ClaimsWebAPITile({
         </div>
       </div>
 
-      {/* JMeter badge */}
+      {/* JMeter badge — diagnosis-first headline */}
       <div className="jmeter-badge">
         <div className="jmeter-badge-header">
-          <span className="jmeter-badge-title">JMeter Load Test @ 600 RPM</span>
-          <span className="jmeter-users-tag">75 Virtual Users</span>
+          <span className="jmeter-badge-title">Caught a p95 latency regression before QA</span>
+          <span className="jmeter-users-tag">JMeter</span>
         </div>
 
         <div className="jmeter-stats">
           <div className="jmeter-stat">
-            <span className="jmeter-stat-val text-cyan">{JMETER_STATS.samples.toLocaleString()}</span>
-            <span className="jmeter-stat-key">Samples</span>
+            <span className="jmeter-stat-val text-cyan">{JMETER_STATS.users}</span>
+            <span className="jmeter-stat-key">Concurrent Users</span>
           </div>
           <div className="jmeter-stat">
-            <span className="jmeter-stat-val text-green">{JMETER_STATS.errors}</span>
-            <span className="jmeter-stat-key">Errors</span>
+            <span className="jmeter-stat-val text-cyan">{JMETER_STATS.throughput}</span>
+            <span className="jmeter-stat-key">Throughput</span>
+          </div>
+          <div className="jmeter-stat">
+            <span className="jmeter-stat-val text-green">{JMETER_STATS.samples.toLocaleString()}</span>
+            <span className="jmeter-stat-key">Samples · {JMETER_STATS.errors} Errors</span>
           </div>
           <div className="jmeter-stat">
             <span className="jmeter-stat-val text-amber">{JMETER_STATS.p95}</span>
-            <span className="jmeter-stat-key">p95 (vs 2s SLA)</span>
-          </div>
-          <div className="jmeter-stat">
-            <span className="jmeter-stat-val text-amber">{JMETER_STATS.p99}</span>
-            <span className="jmeter-stat-key">p99</span>
+            <span className="jmeter-stat-key">p95 (vs {JMETER_STATS.slaTarget} SLA)</span>
           </div>
         </div>
         <div className="jmeter-badge-meta">
-          4,061 samples evaluated · 0% error rate · root-caused p95 latency regression
+          Root-caused to sequential per-plan iteration; documented a parallelisation path and a caller-side stopgap.
         </div>
       </div>
 
@@ -105,7 +105,7 @@ export default function ClaimsWebAPITile({
             onOpenCaseStudy?.('claims');
           }}
         >
-          Claims API & Concurrency <span className="arrow">READ →</span>
+          Claims API &amp; Concurrency <span className="arrow">READ →</span>
         </button>
       </div>
     </GlassTile>

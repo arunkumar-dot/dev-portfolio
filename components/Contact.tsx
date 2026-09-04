@@ -215,6 +215,26 @@ export default function Contact() {
             ))}
           </div>
 
+          {/* Resume download command */}
+          <div className="terminal-line mt-4">
+            <span className="terminal-prompt">$ </span>
+            <span className="text-cyan">download</span>
+            <span className="text-dim"> --resume</span>
+          </div>
+          <div className="terminal-output">
+            <a
+              href="/Arun_Kumar_Kulkarni_Resume.pdf"
+              download
+              className="terminal-resume-btn"
+              id="contact-resume-download"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M7 1v9M7 10L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Download Arun_Kumar_Kulkarni_Resume.pdf ↓
+            </a>
+          </div>
+
           {/* LinkedIn command */}
           <div className="terminal-line mt-4">
             <span className="terminal-prompt">$ </span>

@@ -15,7 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/* TODO: Replace with your actual production domain once Vercel custom domain is confirmed */
+const SITE_URL = "https://arunkumarkulkarni.dev";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Arun Kumar Kulkarni — Senior Software Engineer",
   description:
     "Portfolio of Arun Kumar Kulkarni — senior software engineer with 4 years building production-grade .NET backends, React micro-frontends, and multi-tenant cloud systems.",
@@ -31,8 +35,23 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Arun Kumar Kulkarni — Senior Software Engineer",
     description:
-      "4 years · 0% load-test error rate @ 600 RPM · 11 locales shipped. See the work.",
+      "4 years · 4,061 requests, zero failures at 600 RPM · 11 locales shipped. See the work.",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Arun Kumar Kulkarni — Senior Software Engineer Portfolio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Arun Kumar Kulkarni — Senior Software Engineer",
+    description:
+      "4 years · 4,061 requests, zero failures at 600 RPM · 11 locales shipped. See the work.",
+    images: ["/og-image.png"],
   },
   icons: {
     icon: [
@@ -45,6 +64,28 @@ export const metadata: Metadata = {
   },
 };
 
+// JSON-LD Person structured data
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Arun Kumar Kulkarni",
+  jobTitle: "Senior Software Engineer",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Bengaluru",
+    addressCountry: "IN",
+  },
+  sameAs: [
+    "https://github.com/arunkumar-dot",
+    "https://linkedin.com/in/arun-kulkarni226",
+    "https://tryhabitflow.com",
+  ],
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: "PES University",
+  },
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -52,6 +93,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col relative">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider>
           <SimulationModeProvider>
             <ClientBackground />

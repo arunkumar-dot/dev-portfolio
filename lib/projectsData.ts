@@ -52,18 +52,21 @@ export interface CaseStudy {
 // ─── Comprehensive Portfolio Data (Verified & Resume-Aligned) ────────────────
 
 export const PROJECTS_DATA: CaseStudy[] = [
-  // ── 1. HabitFlow — Full-Stack SaaS Habit Tracker ────────────────────────────
+  // ── 1. RoutineIQ — Full-Stack Production App ────────────────────────────────
   {
     id: "habitflow",
     tileId: "habitflow",
-    tag: "Live Production SaaS · tryhabitflow.com",
-    title: "HabitFlow — Full-Stack SaaS",
+    tag: "Live Production App · tryhabitflow.com",
+    title: "RoutineIQ — Full-Stack App",
     subtitle:
-      "Production SaaS habit tracker with reactive serverless database, multi-device sync & push notifications",
+      "Production habit-tracking app with reactive serverless database, multi-device sync, 3D visualisations & push notifications",
     stack: [
       "Next.js (App Router)",
       "TypeScript",
       "Convex (Reactive DB)",
+      "Three.js",
+      "Web Audio API",
+      "PWA / Service Worker",
       "Clerk Auth",
       "Firebase FCM",
       "Cloudflare",
@@ -71,16 +74,16 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     overview: {
       context:
-        "Independently designed, engineered, and launched a production SaaS web application on a custom domain (tryhabitflow.com) with active users tracking daily habits and routines.",
+        "Independently designed, engineered, and launched a production web application on a custom domain (tryhabitflow.com) with active users tracking daily habits and routines.",
       problem:
         "Traditional habit trackers rely on local device storage or wasteful HTTP polling to synchronize streak states across tabs and devices, introducing stale data and unnecessary mobile battery drain.",
       solution:
-        "Engineered a serverless reactive backend using Convex live query subscriptions and atomic mutations. Integrated Clerk for seamless multi-device authentication and Firebase Cloud Messaging for scheduled push notification reminders. Deployed globally on Cloudflare and Vercel edge networks.",
+        "Engineered a serverless reactive backend using Convex live query subscriptions and atomic mutations. Added Three.js 3D streak visualisations and Web Audio API feedback. Built a full PWA with offline service-worker caching. Integrated Clerk for seamless multi-device authentication and Firebase Cloud Messaging for scheduled push notification reminders. Deployed globally on Cloudflare and Vercel edge networks.",
       outcome:
-        "Live production SaaS application running at tryhabitflow.com with sub-100ms real-time data sync, zero polling overhead, automated streak tracking analytics, and global edge delivery.",
+        "Live production app running at tryhabitflow.com with sub-100ms real-time data sync, zero polling overhead, offline PWA capability, automated streak tracking analytics, and global edge delivery.",
     },
     arch: {
-      title: "Serverless Reactive SaaS Architecture",
+      title: "Serverless Reactive App Architecture",
       steps: [
         {
           label: "Next.js App Router",
@@ -893,14 +896,19 @@ export const PROJECTS_DATA: CaseStudy[] = [
             "Resolves from most-specific scope → … → global defaults, with per-setting merge semantics rather than first-match-wins. Each setting resolves independently across all five levels, holding behavioural parity with the legacy implementation.",
         },
         {
-          heading: "Bounded Context Defense",
+          heading: "Six Behavioural Divergences Fixed Pre-PR",
           detail:
-            "Scoped 4 of 7 checks out of the migration after identifying them as business-data reads rather than eligibility concerns, ensuring only pure eligibility predicates enter the engine.",
+            "Found and fixed six behavioural divergences from the legacy implementation before raising the PR — election-selection predicates, cancelled-transaction filtering, transaction-type eligibility, plan-year date clamping, and exception semantics — each locked in with regression tests.",
         },
         {
-          heading: "IDbContextFactory Concurrency Hardening",
+          heading: "EF Core DbContext Thread-Safety Diagnosis",
           detail:
-            "Replaced shared scoped DbContext with IDbContextFactory in parallel async continuations, eliminating InvalidOperationException thread-safety crashes under high concurrency.",
+            "Diagnosed EF Core DbContext thread-safety failures (InvalidOperationException) under parallel Task.WhenAll execution and restructured the data-access path to sequence reads safely using IDbContextFactory per-operation isolation.",
+        },
+        {
+          heading: "Bounded Context Scoping",
+          detail:
+            "Scoped 4 of 7 eligibility checks out of the migration after establishing they were business-data reads that would have broken the service's bounded context. Ensured only pure eligibility predicates enter the rules engine.",
         },
       ],
     },

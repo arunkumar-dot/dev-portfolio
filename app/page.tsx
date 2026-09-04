@@ -1,7 +1,9 @@
 import Navbar             from "@/components/Navbar";
 import HeroSection        from "@/components/HeroSection";
+import Experience         from "@/components/Experience";
 import SpatialBentoGallery from "@/components/SpatialBentoGallery";
 import Skills             from "@/components/Skills";
+import Education          from "@/components/Education";
 import Contact            from "@/components/Contact";
 
 export default function Home() {
@@ -9,8 +11,10 @@ export default function Home() {
     <main>
       <Navbar />
       <HeroSection />
+      <Experience />
       <SpatialBentoGallery />
       <Skills />
+      <Education />
       <Contact />
       <footer className="site-footer">
         <span className="text-dim">

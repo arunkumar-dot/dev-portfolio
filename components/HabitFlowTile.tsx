@@ -5,6 +5,8 @@ import GlassTile from '@/components/GlassTile';
 const STACK = [
   { label: 'Next.js', color: '#fff' },
   { label: 'Convex', color: '#22d3ee' },
+  { label: 'Three.js', color: '#00f5d4' },
+  { label: 'PWA', color: '#818cf8' },
   { label: 'Clerk', color: '#818cf8' },
   { label: 'Cloudflare', color: '#f97316' },
   { label: 'Firebase', color: '#f59e0b' },
@@ -21,9 +23,9 @@ export default function HabitFlowTile({
       onClick={() => onOpenCaseStudy?.('habitflow')}
     >
       <div className="tile-header">
-        <span className="tile-tag">Live Production SaaS</span>
-        <h3 className="tile-title">HabitFlow</h3>
-        <p className="tile-subtitle">Full-stack SaaS habit tracker at tryhabitflow.com</p>
+        <span className="tile-tag">Live Production App</span>
+        <h3 className="tile-title">RoutineIQ</h3>
+        <p className="tile-subtitle">Full-stack habit tracker at tryhabitflow.com</p>
       </div>
 
       {/* Product badge */}
@@ -42,7 +44,7 @@ export default function HabitFlowTile({
           </svg>
         </div>
         <div className="hf-badge-text">
-          <div className="hf-badge-name">HabitFlow</div>
+          <div className="hf-badge-name">RoutineIQ</div>
           <div className="hf-badge-tagline">Build habits that stick</div>
         </div>
         <span className="hf-live-dot" aria-label="Live product" />
@@ -70,7 +72,7 @@ export default function HabitFlowTile({
             onOpenCaseStudy?.('habitflow');
           }}
         >
-          HabitFlow SaaS <span className="arrow">READ →</span>
+          RoutineIQ <span className="arrow">READ →</span>
         </button>
         <div className="hf-external-links">
           <a

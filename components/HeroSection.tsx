@@ -43,6 +43,16 @@ export default function HeroSection() {
             <span className="hero-status-text">AVAILABLE FOR OPPORTUNITIES</span>
           </motion.div>
 
+          {/* Availability Line */}
+          <motion.p
+            className="hero-availability"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+          >
+            📍 Bengaluru, India · 60-day notice · open to hybrid, on-site and remote
+          </motion.p>
+
           {/* Heading with tight tracking and theme gradient surname */}
           <motion.h1
             className="hero-headline"

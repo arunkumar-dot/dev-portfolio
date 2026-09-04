@@ -2428,6 +2428,322 @@ body {
   }
 }
 
+/* ─── Hero Availability Line ─────────────────────────────────────────────── */
+.hero-availability {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.01em;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+/* ─── Nav Resume Button ──────────────────────────────────────────────────── */
+.nav-resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  color: var(--cyan);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.nav-resume-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.nav-resume-btn svg {
+  opacity: 0.7;
+}
+
+/* ─── Contact Resume Button ──────────────────────────────────────────────── */
+.terminal-resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--cyan);
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.terminal-resume-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--cyan);
+}
+
+/* ─── Experience Timeline Section ────────────────────────────────────────── */
+.experience-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 24px 40px;
+}
+
+.experience-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 40px;
+}
+
+.experience-card {
+  display: flex;
+  gap: 24px;
+  position: relative;
+}
+
+.experience-timeline-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 20px;
+  padding-top: 6px;
+}
+
+.experience-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--text-dim);
+  background: var(--bg);
+  flex-shrink: 0;
+  z-index: 2;
+  transition: all 0.3s;
+}
+.experience-dot--active {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+.experience-line {
+  width: 2px;
+  flex: 1;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.experience-content {
+  flex: 1;
+  padding-bottom: 40px;
+  border-left: none;
+}
+
+.experience-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.experience-dates {
+  color: var(--cyan);
+  font-weight: 500;
+}
+
+.experience-location {
+  color: var(--text-dim);
+}
+
+.experience-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.experience-company {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.experience-client {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+.experience-client-label {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.experience-lines {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.experience-lines li {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  padding-left: 16px;
+  position: relative;
+}
+.experience-lines li::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+/* ─── Education & Certifications Section ─────────────────────────────────── */
+.education-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+}
+
+.education-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.education-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px;
+  background: var(--card-bg, rgba(10, 15, 25, 0.7));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.25s, transform 0.25s;
+}
+.education-card:hover {
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.education-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.education-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.education-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.35;
+}
+
+.education-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.education-institution {
+  color: var(--text-dim);
+}
+.education-sep {
+  color: var(--text-muted);
+}
+.education-year {
+  color: var(--cyan);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+/* ─── Case Study Standalone Page ─────────────────────────────────────────── */
+.case-study-page {
+  min-height: 100vh;
+}
+
+.case-study-page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 100px 24px 60px;
+}
+
+.case-study-back-link {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--cyan);
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: opacity 0.2s;
+}
+.case-study-back-link:hover {
+  opacity: 0.7;
+}
+
+.cs-content-standalone {
+  background: var(--card-bg, rgba(10, 15, 25, 0.7));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.cs-header--standalone {
+  padding: 32px 32px 24px;
+}
+
+.cs-header--standalone .cs-title {
+  font-size: 1.8rem;
+}
+
+/* ─── Mobile Canvas Fallback ─────────────────────────────────────────────── */
+.global-canvas-fallback {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0, 245, 212, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(79, 172, 254, 0.04) 0%, transparent 70%),
+    var(--bg, #06080d);
+}
+
+/* ─── Responsive: Experience & Education ─────────────────────────────────── */
+@media (max-width: 640px) {
+  .experience-section {
+    padding: 60px 16px 32px;
+  }
+  .experience-card {
+    gap: 16px;
+  }
+  .experience-meta {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .education-grid {
+    grid-template-columns: 1fr;
+  }
+  .case-study-page-container {
+    padding: 80px 16px 40px;
+  }
+  .cs-header--standalone {
+    padding: 24px 20px 20px;
+  }
+}
+
 /* ─── Reduced Motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
