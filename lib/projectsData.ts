@@ -186,7 +186,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
     tag: "GitHub Project · github.com/arunkumar-dot/rag-document-assistant",
     title: "Lumen — Local-First Document Q&A API",
     subtitle:
-      "Retrieval-augmented document Q&A with inference running locally on Ollama and vectors in Supabase pgvector — no cloud LLM keys required.",
+      "Hybrid-retrieval document Q&A with inference running locally on Ollama and vectors in Supabase pgvector — no cloud LLM keys required.",
     stack: [
       "TypeScript",
       "Hono",
@@ -197,16 +197,16 @@ export const PROJECTS_DATA: CaseStudy[] = [
     ],
     overview: {
       context:
-        "A REST API that ingests a PDF, embeds its chunks into a vector store, and answers questions against it with a streamed, grounded response.",
+        "A REST API that ingests a PDF, embeds its chunks into a vector store, and answers questions against it with a streamed, grounded response. A Next.js frontend provides upload and query surfaces over the same API.",
       problem:
-        "Document Q&A usually means shipping private documents to a third-party LLM API and paying per token. I wanted the whole pipeline to run against a local model so the documents never leave the machine, and to see what that costs in retrieval quality.",
+        "Document Q&A usually means shipping private documents to a third-party LLM API and paying per token. I wanted the whole pipeline to run against a local model so documents never leave the machine, and to find out what that costs in retrieval quality.",
       solution:
-        "Hono API on Node with bearer API-key auth. PDF text extracted with unpdf, split into 500-character chunks with 50-character overlap, embedded through Ollama nomic-embed-text and stored in Supabase pgvector. Queries embed the question, retrieve the top 5 matching chunks via a Postgres match_chunks function, and stream the answer token by token from a local llama3.1:8b.",
+        "Hono API on Node with bearer API-key auth. PDF text extracted with unpdf, split into 500-character chunks with 50-character overlap, embedded through Ollama nomic-embed-text and stored in Supabase pgvector. Queries embed the question and call a match_chunks Postgres function that blends vector similarity with keyword matching, then stream the answer token by token from a local llama3.1:8b.",
       outcome:
-        "Working end to end with zero cloud LLM spend. The system prompt constrains the model to the retrieved context and instructs it to answer 'I don't have enough information' rather than speculate when retrieval returns nothing useful.",
+        "Working end to end with zero cloud LLM spend. Retrieval combines semantic and lexical signal so exact terms in a document are not lost to embedding drift, and the system prompt constrains the model to the retrieved context so it answers 'I don't have enough information' rather than speculating.",
     },
     arch: {
-      title: "Local-First RAG Pipeline",
+      title: "Local-First Hybrid RAG Pipeline",
       steps: [
         {
           label: "Hono API",
@@ -215,7 +215,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         },
         {
           label: "PDF Extraction & Chunking",
-          sub: "unpdf text extraction, 500/50 fixed-window chunks",
+          sub: "unpdf extraction, 500/50 overlapping windows",
           variant: "primary",
         },
         {
@@ -224,8 +224,13 @@ export const PROJECTS_DATA: CaseStudy[] = [
           variant: "primary",
         },
         {
-          label: "Supabase pgvector + Streaming LLM",
-          sub: "top-5 retrieval, llama3.1:8b streamed via Hono",
+          label: "Hybrid Retrieval",
+          sub: "match_chunks: 70% vector + 30% keyword, top 5",
+          variant: "primary",
+        },
+        {
+          label: "Streaming Generation",
+          sub: "llama3.1:8b streamed through Hono",
           variant: "accent",
         },
       ],
@@ -236,19 +241,19 @@ export const PROJECTS_DATA: CaseStudy[] = [
             "Embeddings and generation both run on Ollama on the host machine. Documents never leave it and there is no per-token cost, at the price of slower generation and a smaller model than a hosted frontier API.",
         },
         {
+          heading: "Hybrid Retrieval Instead of Pure Vector Search",
+          detail:
+            "Retrieval blends cosine similarity over pgvector embeddings with keyword matching, weighted 70/30, inside a single Postgres function. Pure vector search loses exact identifiers, product codes and proper nouns that a reader would search for literally; the keyword term keeps them findable.",
+        },
+        {
           heading: "Grounded-Refusal Prompting",
           detail:
             "The system prompt restricts the model to the retrieved context and directs it to state that it lacks the information rather than fill the gap. A refusal is the correct output when retrieval misses.",
         },
-        {
-          heading: "Token Streaming Through the API Layer",
-          detail:
-            "The query endpoint streams Ollama's response through Hono's streaming helper so the client renders tokens as they arrive instead of waiting for the full generation.",
-        },
       ],
     },
     diff: {
-      legend: "Sending the whole document to the model vs. retrieving the top-5 chunks first",
+      legend: "Sending the whole document to the model vs. hybrid retrieval over embedded chunks",
       before: [
         "// ❌ Naive prompt stuffing — exceeds context limit & hallucinates",
         "async function queryDocument(docText: string, question: string) {",
@@ -258,7 +263,7 @@ export const PROJECTS_DATA: CaseStudy[] = [
         "}",
       ],
       after: [
-        "// ✅ Local RAG: embed query, top-5 Supabase vector match, stream Ollama response",
+        "// ✅ Local hybrid RAG: embed query, top-5 hybrid match, stream Ollama response",
         "const queryEmbedding = await getEmbedding(question);",
         "const { data: chunks } = await supabase.rpc('match_chunks', {",
         "  query_embedding: queryEmbedding,",
@@ -278,15 +283,15 @@ export const PROJECTS_DATA: CaseStudy[] = [
         color: "#00f5d4",
       },
       {
-        label: "Embeddings",
-        value: "768-dim",
-        sub: "nomic-embed-text",
+        label: "Retrieval",
+        value: "Hybrid 70/30",
+        sub: "vector + keyword, top 5",
         color: "#22c55e",
       },
       {
-        label: "Retrieval",
-        value: "Top-5 Chunks",
-        sub: "Supabase pgvector",
+        label: "Embeddings",
+        value: "768-dim",
+        sub: "nomic-embed-text",
         color: "#818cf8",
       },
       {
